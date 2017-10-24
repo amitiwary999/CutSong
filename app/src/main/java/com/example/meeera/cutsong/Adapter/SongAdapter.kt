@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.TextView
 import com.example.meeera.cutsong.Model.SongModel
 import com.example.meeera.cutsong.R
@@ -16,7 +17,7 @@ import com.nostra13.universalimageloader.core.ImageLoader
 /**
  * Created by meeera on 24/10/17.
  */
-class SongAdapter(var data : ArrayList<SongModel>, var context : Context) : RecyclerView.Adapter<SongAdapter.viewHolder>() {
+class SongAdapter(var data : ArrayList<SongModel>, var context : Context, var itemclick : itemClick) : RecyclerView.Adapter<SongAdapter.viewHolder>() {
 
     var imageLoader : ImageLoader = ImageLoader.getInstance()
     var displayImageOption : DisplayImageOptions = DisplayImageOptions.Builder()
@@ -40,6 +41,9 @@ class SongAdapter(var data : ArrayList<SongModel>, var context : Context) : Recy
         holder?.artict?.text = data[position].song_artist
         holder?.duration?.text = data[position].song_duration
         imageLoader.displayImage(data[position].song_pic, holder?.img, displayImageOption)
+        holder?.ll?.setOnClickListener{
+            itemclick.onItemClick(position)
+        }
     }
 
     override fun getItemCount(): Int {
@@ -47,9 +51,14 @@ class SongAdapter(var data : ArrayList<SongModel>, var context : Context) : Recy
     }
 
     class viewHolder(itemView : View) : RecyclerView.ViewHolder(itemView) {
+        var ll = itemView.findViewById<LinearLayout>(R.id.linearl)
         var img = itemView.findViewById<ImageView>(R.id.iv_song_thumb)
         var title = itemView.findViewById<TextView>(R.id.tv_song_title)
         var artict = itemView.findViewById<TextView>(R.id.tv_song_artist)
         var duration = itemView.findViewById<TextView>(R.id.tv_duration)
+    }
+
+    interface itemClick {
+        fun onItemClick(position : Int)
     }
 }

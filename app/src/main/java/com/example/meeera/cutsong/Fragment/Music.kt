@@ -8,6 +8,7 @@ import android.Manifest.permission
 import android.Manifest.permission.READ_EXTERNAL_STORAGE
 import android.content.ContentUris
 import android.content.Context
+import android.content.Intent
 import com.example.meeera.cutsong.Activity.MainActivity
 import android.support.v4.app.ActivityCompat
 import android.content.pm.PackageManager
@@ -20,6 +21,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.example.meeera.cutsong.Activity.SongCutActivity
 import com.example.meeera.cutsong.Adapter.SongAdapter
 import com.example.meeera.cutsong.Model.SongModel
 import com.example.meeera.cutsong.R
@@ -28,11 +30,7 @@ import com.example.meeera.cutsong.R
 /**
  * Created by meeera on 24/10/17.
  */
-class Music() : Fragment() {
-    override fun onAttach(context: Context?) {
-        super.onAttach(context)
-        retrieveSong()
-    }
+class Music() : Fragment(), SongAdapter.itemClick {
 
     private val albumArtUri = Uri.parse("content://media/external/audio/albumart")
     private val malbumArtUri = Uri.parse("content://media/internal/audio/albumart")
@@ -43,7 +41,7 @@ class Music() : Fragment() {
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         var view = inflater?.inflate(R.layout.music_fragment, container, false)
         recyclerView = view?.findViewById(R.id.rv_song_list)
-        adapter = SongAdapter(songList, context)
+        adapter = SongAdapter(songList, context, this)
         recyclerView?.adapter = adapter
         recyclerView?.layoutManager = LinearLayoutManager(context)
         return view
@@ -75,4 +73,17 @@ class Music() : Fragment() {
             }while (musicCursor.moveToNext())
         }
     }
+
+    override fun onItemClick(position: Int) {
+        val intent = Intent(activity as MainActivity, SongCutActivity::class.java)
+        intent.putExtra("fpath", songList[position].song_path)
+        intent.putExtra("artwork", songList[position].song_pic)
+        startActivity(intent)
+    }
+
+    override fun onAttach(context: Context?) {
+        super.onAttach(context)
+        retrieveSong()
+    }
+
 }

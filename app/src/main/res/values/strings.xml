@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">CutSong</string>
+    <string name="btn_save">Save</string>
 </resources>
