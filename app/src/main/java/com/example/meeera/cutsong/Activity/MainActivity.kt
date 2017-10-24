@@ -1,5 +1,6 @@
 package com.example.meeera.cutsong.Activity
 
+import android.content.Context
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.support.design.widget.TabLayout
@@ -15,16 +16,24 @@ import android.widget.TextView
 import com.example.meeera.cutsong.Fragment.Music
 import com.example.meeera.cutsong.Fragment.Recorder
 import com.example.meeera.cutsong.R
+import com.nostra13.universalimageloader.core.ImageLoader
+import com.nostra13.universalimageloader.core.ImageLoaderConfiguration
 import java.util.ArrayList
 
 class MainActivity : AppCompatActivity() {
 
     lateinit var viewpager : ViewPager
     lateinit var tabLayout : TabLayout
+    companion object {
+        var context : Context ?= null
+    }
     var viewpagerAdapter : viewPagerAdapter = viewPagerAdapter(supportFragmentManager)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        context = baseContext
+        val configuration = ImageLoaderConfiguration.Builder(this).build()
+        ImageLoader.getInstance().init(configuration)
         viewpager = findViewById(R.id.viewpager) as ViewPager
         tabLayout = findViewById(R.id.tabLayout) as TabLayout
     }
@@ -45,8 +54,8 @@ class MainActivity : AppCompatActivity() {
     fun setUpTabIcons() {
         if (tabLayout != null) {
             tabLayout.setupWithViewPager(viewpager)
-
-            for (i in 0..tabLayout.tabCount - 1) {
+            var count = tabLayout.tabCount-1
+            for (i in 0..count) {
                 val tab = tabLayout.getTabAt(i)
                 tab?.setCustomView(viewpagerAdapter.getTabView(i))
             }
@@ -56,7 +65,6 @@ class MainActivity : AppCompatActivity() {
 
     class viewPagerAdapter(fm : FragmentManager) : FragmentStatePagerAdapter(fm) {
 
-        var fragmnt : Fragment ?= null
         private val mFragmentList = ArrayList<Fragment>()
         private val mFragmentListtitle = ArrayList<String>()
         private val mTabsTitle = arrayOf("Music", "Recoder")
@@ -71,7 +79,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         fun getTabView(position: Int) : View {
-            var view  : View = LayoutInflater.from(fragmnt?.context).inflate(R.layout.custom_tab_text, null)
+            var view  : View = LayoutInflater.from(context).inflate(R.layout.custom_tab_text, null)
             val title = view.findViewById<TextView>(R.id.titletab)
             title.text = mTabsTitle[position]
             val icon = view.findViewById<ImageView>(R.id.icon)
@@ -80,7 +88,6 @@ class MainActivity : AppCompatActivity() {
         }
 
         fun addFrag(fragment: Fragment) {
-            fragmnt = fragment
             mFragmentList.add(fragment)
         }
     }
