@@ -8,6 +8,8 @@ import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentManager
 import android.support.v4.app.FragmentPagerAdapter
 import android.support.v4.app.FragmentStatePagerAdapter
+import com.crashlytics.android.Crashlytics;
+import io.fabric.sdk.android.Fabric;
 import android.support.v4.view.ViewPager
 import android.view.LayoutInflater
 import android.view.View
@@ -20,6 +22,8 @@ import com.nostra13.universalimageloader.core.ImageLoader
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration
 import java.util.ArrayList
 
+
+
 class MainActivity : AppCompatActivity() {
 
     lateinit var viewpager : ViewPager
@@ -31,6 +35,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        Fabric.with(this, Crashlytics())
         context = baseContext
         val configuration = ImageLoaderConfiguration.Builder(this).build()
         ImageLoader.getInstance().init(configuration)

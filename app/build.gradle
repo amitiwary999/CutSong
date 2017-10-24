@@ -1,5 +1,6 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
+apply plugin: 'io.fabric'
 
 android {
     compileSdkVersion 26
@@ -27,6 +28,9 @@ dependencies {
     })
     compile 'com.android.support:appcompat-v7:26.+'
     compile 'com.android.support:design:26.+'
+    compile('com.crashlytics.sdk.android:crashlytics:2.7.1@aar') {
+        transitive = true;
+    }
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
     compile 'com.nostra13.universalimageloader:universal-image-loader:1.9.5'
     compile "com.github.bq:markerseekbar:v0.9"
@@ -37,4 +41,5 @@ dependencies {
 }
 repositories {
     mavenCentral()
+    maven { url 'https://maven.fabric.io/public' }
 }

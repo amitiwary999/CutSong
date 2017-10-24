@@ -4,6 +4,7 @@
     package="com.example.meeera.cutsong">
 
     <uses-sdk tools:overrideLibrary="com.bq.markerseekbar" />
+    <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"></uses-permission>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.RECORD_AUDIO"/>
@@ -23,6 +24,9 @@
             </intent-filter>
         </activity>
         <activity android:name=".Activity.SongCutActivity"/>
+        <meta-data
+            android:name="io.fabric.ApiKey"
+            android:value="9a9e8b3d52a8d1f75dbe2b76bde3913620a9c9a4" />
     </application>
 
 </manifest>
