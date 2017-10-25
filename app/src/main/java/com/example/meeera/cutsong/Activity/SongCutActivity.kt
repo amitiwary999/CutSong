@@ -16,8 +16,8 @@ import android.view.View
 import android.view.animation.Animation
 import android.widget.*
 import com.bq.markerseekbar.MarkerSeekBar
-import com.example.meeera.cutsong.Mediafile.MediaFile
 import com.example.meeera.cutsong.R
+import com.example.meeera.cutsong.soundfile.SoundFile
 import com.nostra13.universalimageloader.core.DisplayImageOptions
 import com.nostra13.universalimageloader.core.ImageLoader
 import com.triggertrap.seekarc.SeekArc
@@ -47,8 +47,8 @@ class SongCutActivity : AppCompatActivity(), View.OnClickListener {
     private var fab_cut: FloatingActionButton? = null
     private var imageLoader: ImageLoader? = null
     private var options: DisplayImageOptions? = null
-    private var animation: Animation? = null
-    private var mMediaFile: MediaFile? = null
+   // private var animation: Animation? = null
+    private var mMediaFile: SoundFile? = null
     var mProgressDialog: ProgressDialog ?= null
     //UI
     private var bt_save: Button? = null
@@ -197,7 +197,7 @@ class SongCutActivity : AppCompatActivity(), View.OnClickListener {
 
             override fun run() {
                 try {
-                    mMediaFile = MediaFile.create(File(fPath).getAbsolutePath())
+                    mMediaFile = SoundFile.create(File(fPath).getAbsolutePath())
                     if (mMediaFile == null) {
                         mProgressDialog?.dismiss()
                         return
@@ -207,7 +207,7 @@ class SongCutActivity : AppCompatActivity(), View.OnClickListener {
                 } catch (e: IOException) {
                     e.printStackTrace()
                     return
-                } catch (e: MediaFile.InvalidInputException) {
+                } catch (e: SoundFile.InvalidInputException) {
                     e.printStackTrace()
                     return
                 }
@@ -236,7 +236,6 @@ class SongCutActivity : AppCompatActivity(), View.OnClickListener {
             mediaPlayer.pause()
             current_time = mediaPlayer.currentPosition.toLong()
             chronometer_song_play?.stop()
-            iv_artwork?.clearAnimation()
         } else {
             iv_play_pause?.setImageResource(R.drawable.pause_button)
 
@@ -244,7 +243,6 @@ class SongCutActivity : AppCompatActivity(), View.OnClickListener {
             val eclapsedtime = SystemClock.elapsedRealtime()
             chronometer_song_play?.setBase(eclapsedtime - current_time)
             chronometer_song_play?.start()
-            iv_artwork?.startAnimation(animation)
 
         }
 
@@ -294,7 +292,7 @@ class SongCutActivity : AppCompatActivity(), View.OnClickListener {
             mediaPlayer.stop()
         }
         mediaPlayer.release()
-        animation?.cancel()
+       // animation?.cancel()
     }
 
 
@@ -357,7 +355,7 @@ class SongCutActivity : AppCompatActivity(), View.OnClickListener {
                 // Try to load the new file to make sure it worked
                 try {
 
-                    MediaFile.create(outPath)
+                    SoundFile.create(outPath)
                 } catch (e: Exception) {
                     Toast.makeText(this@SongCutActivity, "" + e.toString(), Toast.LENGTH_SHORT).show()
                     return
