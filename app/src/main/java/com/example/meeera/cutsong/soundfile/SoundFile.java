@@ -97,7 +97,7 @@ public class SoundFile {
     }
 
     // Create and return a SoundFile object using the file fileName.
-    public static SoundFile create(String fileName)
+    public static SoundFile create(String fileName,  ProgressListener progressListener)
         throws java.io.FileNotFoundException,
             IOException, InvalidInputException {
         // First check that the file exists and that its extension is supported.
@@ -114,7 +114,7 @@ public class SoundFile {
             return null;
         }
         SoundFile soundFile = new SoundFile();
-       // soundFile.setProgressListener(progressListener);
+        soundFile.setProgressListener(progressListener);
         soundFile.ReadFile(f);
         return soundFile;
     }

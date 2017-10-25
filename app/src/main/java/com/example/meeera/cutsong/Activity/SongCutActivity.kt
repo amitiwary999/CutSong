@@ -2,7 +2,6 @@ package com.example.meeera.cutsong.Activity
 
 import android.app.ProgressDialog
 import android.content.ContentValues
-import android.content.DialogInterface
 import android.content.Intent
 import android.graphics.Bitmap
 import android.media.MediaMetadataRetriever
@@ -13,7 +12,6 @@ import android.support.design.widget.FloatingActionButton
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.view.View
-import android.view.ViewGroup
 import android.widget.*
 import com.bq.markerseekbar.MarkerSeekBar
 import com.example.meeera.cutsong.R
@@ -50,6 +48,7 @@ class SongCutActivity : AppCompatActivity(), View.OnClickListener {
    // private var animation: Animation? = null
     private var mMediaFile: SoundFile? = null
     var mProgressDialog: ProgressDialog ?= null
+    var mLoadingKeepGoing : Boolean = true
     //UI
     private var bt_save: Button? = null
 
@@ -92,7 +91,7 @@ class SongCutActivity : AppCompatActivity(), View.OnClickListener {
         marker_seekbar_from = findViewById(R.id.marker_seekbar_from) as MarkerSeekBar
         marker_seekbar_from?.setProgressAdapter(object : MarkerSeekBar.ProgressAdapter{
             override fun toText(progress: Int): String {
-                return  getDisplayTextFrompProgress(progress)
+                return  getDisplayTextFromProgress(progress)
             }
 
             override fun onMeasureLongestText(seekBarMax: Int): String {
@@ -102,7 +101,7 @@ class SongCutActivity : AppCompatActivity(), View.OnClickListener {
         })
         marker_seekbar_from?.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar, i: Int, b: Boolean) {
-                tv_from?.setText(getDisplayTextFrompProgress(seekBar.progress))
+                tv_from?.setText(getDisplayTextFromProgress(seekBar.progress))
                 start_point = getSecondFromProgress(seekBar.progress).toDouble()
             }
 
@@ -117,7 +116,7 @@ class SongCutActivity : AppCompatActivity(), View.OnClickListener {
         marker_seekbar_to = findViewById(R.id.marker_seekbar_to) as MarkerSeekBar
         marker_seekbar_to?.setProgressAdapter(object : MarkerSeekBar.ProgressAdapter{
             override fun toText(progress: Int): String {
-                return  getDisplayTextFrompProgress(progress)
+                return  getDisplayTextFromProgress(progress)
             }
 
             override fun onMeasureLongestText(seekBarMax: Int): String {
@@ -129,7 +128,7 @@ class SongCutActivity : AppCompatActivity(), View.OnClickListener {
         marker_seekbar_to?.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar, i: Int, b: Boolean) {
 
-                tv_to?.setText(getDisplayTextFrompProgress(seekBar.progress))
+                tv_to?.setText(getDisplayTextFromProgress(seekBar.progress))
                 end_point = getSecondFromProgress(seekBar.progress).toDouble()
 
             }
@@ -158,8 +157,8 @@ class SongCutActivity : AppCompatActivity(), View.OnClickListener {
 
             override fun onStopTrackingTouch(seekArc: SeekArc) {
                 setmediaProgress(seekArc.progress)
-                if (!mediaPlayer?.isPlaying().toString().toBoolean()) {
-                    current_time = mediaPlayer?.getCurrentPosition()?.toLong()
+                if (!mediaPlayer.isPlaying().toString().toBoolean()) {
+                    current_time = mediaPlayer.currentPosition.toLong()
                 }
 
             }
@@ -175,7 +174,7 @@ class SongCutActivity : AppCompatActivity(), View.OnClickListener {
             seekbar_song_play?.setProgress(getProgress(elapsedMillis))
         })*/
 
-        mediaPlayer?.setOnCompletionListener(MediaPlayer.OnCompletionListener {
+        mediaPlayer.setOnCompletionListener(MediaPlayer.OnCompletionListener {
             current_time = 0
             chronometer_song_play?.stop()
             iv_play_pause?.setImageResource(R.drawable.play_button)
@@ -204,17 +203,27 @@ class SongCutActivity : AppCompatActivity(), View.OnClickListener {
         mProgressDialog = ProgressDialog(this)
         mProgressDialog?.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL)
         mProgressDialog?.setTitle("Loading")
-        mProgressDialog?.setCancelable(true)
-        mProgressDialog?.setOnCancelListener(
-                DialogInterface.OnCancelListener { })
+        mProgressDialog?.setCancelable(false)
         mProgressDialog?.show()
 
+        var mLoadingLastUpdateTime = getCurrentTime()
+
+        val listener = object : SoundFile.ProgressListener {
+           override fun reportProgress(fractionComplete: Double): Boolean {
+                val now = getCurrentTime()
+                if (now - mLoadingLastUpdateTime > 100) {
+                    mProgressDialog?.progress = (
+                            (mProgressDialog?.max.toString().toInt() * fractionComplete).toInt())
+                    mLoadingLastUpdateTime = now
+                }
+                return mLoadingKeepGoing
+            }
+        }
 
         mLoadSoundFileThread = object : Thread() {
-
             override fun run() {
                 try {
-                    mMediaFile = SoundFile.create(File(fPath).getAbsolutePath())
+                    mMediaFile = SoundFile.create(File(fPath).getAbsolutePath(), listener)
                     if (mMediaFile == null) {
                         mProgressDialog?.dismiss()
                         return
@@ -238,7 +247,7 @@ class SongCutActivity : AppCompatActivity(), View.OnClickListener {
     override fun onClick(view: View) {
         when (view.id) {
             R.id.iv_play_pause -> handlePlayPause()
-            R.id.fab_cut -> saveRingtone(track_title.subSequence(0, track_title?.length.toString().toInt()), start_point, end_point)
+            R.id.fab_cut -> saveRingtone(track_title.subSequence(0, track_title.length.toString().toInt()), start_point, end_point)
         }
     }
 
@@ -266,9 +275,8 @@ class SongCutActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     private fun getProgress(d: Long): Int {
-        var x = 0
         val p = d * 100 / total_duration
-        x = p.toInt()
+        var x = p.toInt()
         return x
     }
 
@@ -281,7 +289,7 @@ class SongCutActivity : AppCompatActivity(), View.OnClickListener {
 
     }
 
-    private fun getDisplayTextFrompProgress(p: Int): String {
+    private fun getDisplayTextFromProgress(p: Int): String {
         var displayText = ""
         val millis = total_duration * p / 100
         val seconds = (millis / 1000).toInt() % 60
@@ -375,8 +383,16 @@ class SongCutActivity : AppCompatActivity(), View.OnClickListener {
 
                 // Try to load the new file to make sure it worked
                 try {
-
-                    SoundFile.create(outPath)
+                    val listener = object : SoundFile.ProgressListener {
+                        override fun reportProgress(frac: Double): Boolean {
+                            // Do nothing - we're not going to try to
+                            // estimate when reloading a saved sound
+                            // since it's usually fast, but hard to
+                            // estimate anyway.
+                            return true  // Keep going
+                        }
+                    }
+                    SoundFile.create(outPath, listener)
                 } catch (e: Exception) {
                     Toast.makeText(this@SongCutActivity, "" + e.toString(), Toast.LENGTH_SHORT).show()
                     return
@@ -491,5 +507,9 @@ class SongCutActivity : AppCompatActivity(), View.OnClickListener {
         }
 
         return path
+    }
+
+    private fun getCurrentTime(): Long {
+        return System.nanoTime() / 1000000
     }
 }

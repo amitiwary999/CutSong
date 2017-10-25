@@ -58,7 +58,6 @@ class Music() : Fragment(), SongAdapter.itemClick {
         val musicCursor = musicResolver.query(musicUri, null, null, null, null)
         if(musicCursor != null && musicCursor.moveToFirst()){
             val titleColumn = musicCursor.getColumnIndex(MediaStore.Audio.Media.TITLE)
-            val idCloumn = musicCursor.getColumnIndex(MediaStore.Audio.Media._ID)
             val artistColumn = musicCursor.getColumnIndex(MediaStore.Audio.Media.ARTIST)
             val data = musicCursor.getColumnIndex(MediaStore.Audio.Media.DATA)
             val duration = musicCursor.getColumnIndex(MediaStore.Audio.Media.DURATION)
