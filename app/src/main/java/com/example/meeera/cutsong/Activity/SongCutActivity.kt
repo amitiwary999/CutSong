@@ -13,6 +13,7 @@ import android.support.design.widget.FloatingActionButton
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.view.View
+import android.view.ViewGroup
 import android.widget.*
 import com.bq.markerseekbar.MarkerSeekBar
 import com.example.meeera.cutsong.R
@@ -89,15 +90,23 @@ class SongCutActivity : AppCompatActivity(), View.OnClickListener {
         fab_cut?.setOnClickListener(this)
         chronometer_song_play = findViewById(R.id.chronometer_song_play) as Chronometer
         marker_seekbar_from = findViewById(R.id.marker_seekbar_from) as MarkerSeekBar
+        marker_seekbar_from?.setProgressAdapter(object : MarkerSeekBar.ProgressAdapter{
+            override fun toText(progress: Int): String {
+                return  getDisplayTextFrompProgress(progress)
+            }
+
+            override fun onMeasureLongestText(seekBarMax: Int): String {
+                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+            }
+
+        })
         marker_seekbar_from?.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar, i: Int, b: Boolean) {
                 tv_from?.setText(getDisplayTextFrompProgress(seekBar.progress))
-
                 start_point = getSecondFromProgress(seekBar.progress).toDouble()
             }
 
             override fun onStartTrackingTouch(seekBar: SeekBar) {
-
             }
 
             override fun onStopTrackingTouch(seekBar: SeekBar) {
@@ -106,6 +115,16 @@ class SongCutActivity : AppCompatActivity(), View.OnClickListener {
         })
 
         marker_seekbar_to = findViewById(R.id.marker_seekbar_to) as MarkerSeekBar
+        marker_seekbar_to?.setProgressAdapter(object : MarkerSeekBar.ProgressAdapter{
+            override fun toText(progress: Int): String {
+                return  getDisplayTextFrompProgress(progress)
+            }
+
+            override fun onMeasureLongestText(seekBarMax: Int): String {
+                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+            }
+
+        })
 
         marker_seekbar_to?.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar, i: Int, b: Boolean) {
