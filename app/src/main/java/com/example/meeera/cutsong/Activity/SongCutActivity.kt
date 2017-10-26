@@ -49,8 +49,6 @@ class SongCutActivity : AppCompatActivity(), View.OnClickListener {
     private var mMediaFile: SoundFile? = null
     var mProgressDialog: ProgressDialog ?= null
     var mLoadingKeepGoing : Boolean = true
-    //UI
-    private var bt_save: Button? = null
 
     //DTO and VO
     private var start_point = 0.0
@@ -169,23 +167,12 @@ class SongCutActivity : AppCompatActivity(), View.OnClickListener {
             seekbar_song_play?.setProgress(getProgress(elapsedMillis))
         }
 
-      /*  chronometer_song_play?.setOnChronometerTickListener(Chronometer.OnChronometerTickListener { chronometer ->
-            val elapsedMillis = SystemClock.elapsedRealtime() - chronometer.base
-            seekbar_song_play?.setProgress(getProgress(elapsedMillis))
-        })*/
-
         mediaPlayer.setOnCompletionListener(MediaPlayer.OnCompletionListener {
             current_time = 0
             chronometer_song_play?.stop()
             iv_play_pause?.setImageResource(R.drawable.play_button)
         })
 
-        bt_save = findViewById(R.id.bt_save) as Button
-        bt_save?.setOnClickListener(View.OnClickListener {
-            if (end_point > 0) {
-                saveRingtone(fPath, start_point, end_point)
-            }
-        })
         getMusicDataFromPath()
     }
 
@@ -227,8 +214,7 @@ class SongCutActivity : AppCompatActivity(), View.OnClickListener {
                         mProgressDialog?.dismiss()
                         return
                     }
-                    mediaPlayer.setDataSource(fPath)
-                    mediaPlayer.prepare()
+
                 } catch (e: IOException) {
                     e.printStackTrace()
                     return
@@ -250,7 +236,6 @@ class SongCutActivity : AppCompatActivity(), View.OnClickListener {
         }
     }
 
-
     /***
      * method to handle play pause of song
      */
@@ -263,7 +248,6 @@ class SongCutActivity : AppCompatActivity(), View.OnClickListener {
             chronometer_song_play?.stop()
         } else {
             iv_play_pause?.setImageResource(R.drawable.pause_button)
-
             mediaPlayer.start()
             val eclapsedtime = SystemClock.elapsedRealtime()
             chronometer_song_play?.setBase(eclapsedtime - current_time)
@@ -309,6 +293,11 @@ class SongCutActivity : AppCompatActivity(), View.OnClickListener {
         return (millis / 1000).toInt() % 60
     }
 
+    override fun onStart() {
+        super.onStart()
+        mediaPlayer.setDataSource(fPath)
+        mediaPlayer.prepare()
+    }
 
     override fun onBackPressed() {
         super.onBackPressed()
@@ -333,7 +322,13 @@ class SongCutActivity : AppCompatActivity(), View.OnClickListener {
     override fun onStop() {
         super.onStop()
         Log.d("stop", "stop")
+        current_time = mediaPlayer.currentPosition.toLong()
         mediaPlayer.release()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        Log.d("destroy", "destroy")
     }
 
     private fun saveRingtone(title: CharSequence, mStartPos: Double, mEndPos: Double) {
@@ -451,7 +446,6 @@ class SongCutActivity : AppCompatActivity(), View.OnClickListener {
         values.put(MediaStore.MediaColumns.TITLE, title.toString())
         values.put(MediaStore.MediaColumns.SIZE, fileSize)
         values.put(MediaStore.MediaColumns.MIME_TYPE, mimeType)
-
         values.put(MediaStore.Audio.Media.ARTIST, artist)
         values.put(MediaStore.Audio.Media.DURATION, duration)
 
