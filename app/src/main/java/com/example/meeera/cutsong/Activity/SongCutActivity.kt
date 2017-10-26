@@ -2,7 +2,6 @@ package com.example.meeera.cutsong.Activity
 
 import android.app.ProgressDialog
 import android.content.ContentValues
-import android.content.DialogInterface
 import android.content.Intent
 import android.graphics.Bitmap
 import android.media.MediaMetadataRetriever
@@ -13,7 +12,6 @@ import android.support.design.widget.FloatingActionButton
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.view.View
-import android.view.animation.Animation
 import android.widget.*
 import com.bq.markerseekbar.MarkerSeekBar
 import com.example.meeera.cutsong.R
@@ -50,6 +48,7 @@ class SongCutActivity : AppCompatActivity(), View.OnClickListener {
    // private var animation: Animation? = null
     private var mMediaFile: SoundFile? = null
     var mProgressDialog: ProgressDialog ?= null
+    var mLoadingKeepGoing : Boolean = true
     //UI
     private var bt_save: Button? = null
 
@@ -60,7 +59,6 @@ class SongCutActivity : AppCompatActivity(), View.OnClickListener {
 
     //Thread
     private var mLoadSoundFileThread: Thread? = null
-    private val mRecordAudioThread: Thread? = null
     private var mSaveSoundFileThread: Thread? = null
 
     //Handler
@@ -91,15 +89,23 @@ class SongCutActivity : AppCompatActivity(), View.OnClickListener {
         fab_cut?.setOnClickListener(this)
         chronometer_song_play = findViewById(R.id.chronometer_song_play) as Chronometer
         marker_seekbar_from = findViewById(R.id.marker_seekbar_from) as MarkerSeekBar
+        marker_seekbar_from?.setProgressAdapter(object : MarkerSeekBar.ProgressAdapter{
+            override fun toText(progress: Int): String {
+                return  getDisplayTextFromProgress(progress)
+            }
+
+            override fun onMeasureLongestText(seekBarMax: Int): String {
+                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+            }
+
+        })
         marker_seekbar_from?.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar, i: Int, b: Boolean) {
-                tv_from?.setText(getDisplayTextFrompProgress(seekBar.progress))
-
+                tv_from?.setText(getDisplayTextFromProgress(seekBar.progress))
                 start_point = getSecondFromProgress(seekBar.progress).toDouble()
             }
 
             override fun onStartTrackingTouch(seekBar: SeekBar) {
-
             }
 
             override fun onStopTrackingTouch(seekBar: SeekBar) {
@@ -108,11 +114,21 @@ class SongCutActivity : AppCompatActivity(), View.OnClickListener {
         })
 
         marker_seekbar_to = findViewById(R.id.marker_seekbar_to) as MarkerSeekBar
+        marker_seekbar_to?.setProgressAdapter(object : MarkerSeekBar.ProgressAdapter{
+            override fun toText(progress: Int): String {
+                return  getDisplayTextFromProgress(progress)
+            }
+
+            override fun onMeasureLongestText(seekBarMax: Int): String {
+                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+            }
+
+        })
 
         marker_seekbar_to?.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar, i: Int, b: Boolean) {
 
-                tv_to?.setText(getDisplayTextFrompProgress(seekBar.progress))
+                tv_to?.setText(getDisplayTextFromProgress(seekBar.progress))
                 end_point = getSecondFromProgress(seekBar.progress).toDouble()
 
             }
@@ -141,8 +157,8 @@ class SongCutActivity : AppCompatActivity(), View.OnClickListener {
 
             override fun onStopTrackingTouch(seekArc: SeekArc) {
                 setmediaProgress(seekArc.progress)
-                if (!mediaPlayer?.isPlaying().toString().toBoolean()) {
-                    current_time = mediaPlayer?.getCurrentPosition()?.toLong()
+                if (!mediaPlayer.isPlaying().toString().toBoolean()) {
+                    current_time = mediaPlayer.currentPosition.toLong()
                 }
 
             }
@@ -158,7 +174,7 @@ class SongCutActivity : AppCompatActivity(), View.OnClickListener {
             seekbar_song_play?.setProgress(getProgress(elapsedMillis))
         })*/
 
-        mediaPlayer?.setOnCompletionListener(MediaPlayer.OnCompletionListener {
+        mediaPlayer.setOnCompletionListener(MediaPlayer.OnCompletionListener {
             current_time = 0
             chronometer_song_play?.stop()
             iv_play_pause?.setImageResource(R.drawable.play_button)
@@ -187,17 +203,27 @@ class SongCutActivity : AppCompatActivity(), View.OnClickListener {
         mProgressDialog = ProgressDialog(this)
         mProgressDialog?.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL)
         mProgressDialog?.setTitle("Loading")
-        mProgressDialog?.setCancelable(true)
-        mProgressDialog?.setOnCancelListener(
-                DialogInterface.OnCancelListener { })
+        mProgressDialog?.setCancelable(false)
         mProgressDialog?.show()
 
+        var mLoadingLastUpdateTime = getCurrentTime()
+
+        val listener = object : SoundFile.ProgressListener {
+           override fun reportProgress(fractionComplete: Double): Boolean {
+                val now = getCurrentTime()
+                if (now - mLoadingLastUpdateTime > 100) {
+                    mProgressDialog?.progress = (
+                            (mProgressDialog?.max.toString().toInt() * fractionComplete).toInt())
+                    mLoadingLastUpdateTime = now
+                }
+                return mLoadingKeepGoing
+            }
+        }
 
         mLoadSoundFileThread = object : Thread() {
-
             override fun run() {
                 try {
-                    mMediaFile = SoundFile.create(File(fPath).getAbsolutePath())
+                    mMediaFile = SoundFile.create(File(fPath).getAbsolutePath(), listener)
                     if (mMediaFile == null) {
                         mProgressDialog?.dismiss()
                         return
@@ -221,7 +247,7 @@ class SongCutActivity : AppCompatActivity(), View.OnClickListener {
     override fun onClick(view: View) {
         when (view.id) {
             R.id.iv_play_pause -> handlePlayPause()
-            R.id.fab_cut -> saveRingtone(track_title.subSequence(0, track_title?.length.toString().toInt()), start_point, end_point)
+            R.id.fab_cut -> saveRingtone(track_title.subSequence(0, track_title.length.toString().toInt()), start_point, end_point)
         }
     }
 
@@ -249,9 +275,8 @@ class SongCutActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     private fun getProgress(d: Long): Int {
-        var x = 0
         val p = d * 100 / total_duration
-        x = p.toInt()
+        var x = p.toInt()
         return x
     }
 
@@ -264,7 +289,7 @@ class SongCutActivity : AppCompatActivity(), View.OnClickListener {
 
     }
 
-    private fun getDisplayTextFrompProgress(p: Int): String {
+    private fun getDisplayTextFromProgress(p: Int): String {
         var displayText = ""
         val millis = total_duration * p / 100
         val seconds = (millis / 1000).toInt() % 60
@@ -292,6 +317,10 @@ class SongCutActivity : AppCompatActivity(), View.OnClickListener {
             mediaPlayer.stop()
         }
         mediaPlayer.release()
+        var intent = Intent(this@SongCutActivity, MainActivity::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
+        startActivity(intent)
+        finish()
        // animation?.cancel()
     }
 
@@ -354,8 +383,16 @@ class SongCutActivity : AppCompatActivity(), View.OnClickListener {
 
                 // Try to load the new file to make sure it worked
                 try {
-
-                    SoundFile.create(outPath)
+                    val listener = object : SoundFile.ProgressListener {
+                        override fun reportProgress(frac: Double): Boolean {
+                            // Do nothing - we're not going to try to
+                            // estimate when reloading a saved sound
+                            // since it's usually fast, but hard to
+                            // estimate anyway.
+                            return true  // Keep going
+                        }
+                    }
+                    SoundFile.create(outPath, listener)
                 } catch (e: Exception) {
                     Toast.makeText(this@SongCutActivity, "" + e.toString(), Toast.LENGTH_SHORT).show()
                     return
@@ -407,104 +444,16 @@ class SongCutActivity : AppCompatActivity(), View.OnClickListener {
         values.put(MediaStore.Audio.Media.ARTIST, artist)
         values.put(MediaStore.Audio.Media.DURATION, duration)
 
-        /*values.put(MediaStore.Audio.Media.IS_RINGTONE,
-                mNewFileKind == FileSaveDialog.FILE_KIND_RINGTONE);
-        values.put(MediaStore.Audio.Media.IS_NOTIFICATION,
-                mNewFileKind == FileSaveDialog.FILE_KIND_NOTIFICATION);
-        values.put(MediaStore.Audio.Media.IS_ALARM,
-                mNewFileKind == FileSaveDialog.FILE_KIND_ALARM);
-        values.put(MediaStore.Audio.Media.IS_MUSIC,
-                mNewFileKind == FileSaveDialog.FILE_KIND_MUSIC);*/
-
         // Insert it into the database
         val uri = MediaStore.Audio.Media.getContentUriForPath(outPath)
         val newUri = contentResolver.insert(uri, values)
         setResult(RESULT_OK, Intent().setData(newUri))
 
-        // If Ringdroid was launched to get content, just return
-        /* if (mWasGetContentIntent) {
-            finish();
-            return;
-        }*/
-
-        /*// There's nothing more to do with music or an alarm.  Show a
-        // success message and then quit.
-        if (mNewFileKind == FileSaveDialog.FILE_KIND_MUSIC ||
-                mNewFileKind == FileSaveDialog.FILE_KIND_ALARM) {
-            Toast.makeText(this,
-                    R.string.save_success_message,
-                    Toast.LENGTH_SHORT)
-                    .show();
-            finish();
-            return;
-        }
-
-        // If it's a notification, give the user the option of making
-        // this their default notification.  If they saye no, w're finished.
-        if (mNewFileKind == FileSaveDialog.FILE_KIND_NOTIFICATION) {
-            new AlertDialog.Builder(RingdroidEditActivity.this)
-                    .setTitle(R.string.alert_title_success)
-                    .setMessage(R.string.set_default_notification)
-                    .setPositiveButton(R.string.alert_yes_button,
-                            new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog,
-                                                    int whichButton) {
-                                    RingtoneManager.setActualDefaultRingtoneUri(
-                                            RingdroidEditActivity.this,
-                                            RingtoneManager.TYPE_NOTIFICATION,
-                                            newUri);
-                                    finish();
-                                }
-                            })
-                    .setNegativeButton(
-                            R.string.alert_no_button,
-                            new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int whichButton) {
-                                    finish();
-                                }
-                            })
-                    .setCancelable(false)
-                    .show();
-            return;
-        }
-*/
-        // If we get here, that means the type is a ringtone.  There are
-        // three choices: make this your default ringtone, assign it to a
-        // contact, or do nothing.
-
-        val handler = object : Handler() {
-            override fun handleMessage(response: Message) {
-                val actionId = response.arg1
-                when (actionId) {
-                /* case R.id.button_make_default:
-                        RingtoneManager.setActualDefaultRingtoneUri(
-                                Mp3Cutter.this,
-                                RingtoneManager.TYPE_RINGTONE,
-                                newUri);
-                        Toast.makeText(
-                                Mp3Cutter.this,
-                                R.string.default_ringtone_success_message,
-                                Toast.LENGTH_SHORT)
-                                .show();
-                        finish();
-                        break;
-                    case R.id.button_choose_contact:
-                        chooseContactForRingtone(newUri);
-                        break;
-                    default:
-                    case R.id.button_do_nothing:
-                        finish();
-                        break;*/
-                    else -> finish()
-                }
-            }
-        }
-
         Toast.makeText(this, "Save success", Toast.LENGTH_SHORT).show()
-        /* Message message = Message.obtain(handler);
-        AfterSaveActionDialog dlog = new AfterSaveActionDialog(
-                this, message);
-        dlog.show();*/
+        var intent = Intent(this@SongCutActivity, MainActivity::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
+        startActivity(intent)
+        finish()
     }
 
 
@@ -558,5 +507,9 @@ class SongCutActivity : AppCompatActivity(), View.OnClickListener {
         }
 
         return path
+    }
+
+    private fun getCurrentTime(): Long {
+        return System.nanoTime() / 1000000
     }
 }

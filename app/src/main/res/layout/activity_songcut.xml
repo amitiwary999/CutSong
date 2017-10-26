@@ -56,7 +56,6 @@
                 <android.support.design.widget.FloatingActionButton
                     android:id="@+id/fab_cut"
                     android:layout_width="wrap_content"
-
                     android:layout_height="wrap_content"
                     android:layout_alignParentBottom="true"
                     android:layout_alignParentRight="true"
@@ -154,7 +153,6 @@
                         android:text="0:0" />
                 </RelativeLayout>
 
-
                 <Button
                     android:visibility="gone"
                     android:layout_gravity="center"
@@ -162,14 +160,7 @@
                     android:text="@string/btn_save"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content" />
-
             </LinearLayout>
-
-
         </RelativeLayout>
-
-
     </LinearLayout>
-
-
 </RelativeLayout>

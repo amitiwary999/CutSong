@@ -58,7 +58,6 @@ class Music() : Fragment(), SongAdapter.itemClick {
         val musicCursor = musicResolver.query(musicUri, null, null, null, null)
         if(musicCursor != null && musicCursor.moveToFirst()){
             val titleColumn = musicCursor.getColumnIndex(MediaStore.Audio.Media.TITLE)
-            val idCloumn = musicCursor.getColumnIndex(MediaStore.Audio.Media._ID)
             val artistColumn = musicCursor.getColumnIndex(MediaStore.Audio.Media.ARTIST)
             val data = musicCursor.getColumnIndex(MediaStore.Audio.Media.DATA)
             val duration = musicCursor.getColumnIndex(MediaStore.Audio.Media.DURATION)
@@ -66,12 +65,36 @@ class Music() : Fragment(), SongAdapter.itemClick {
             do {
                 var artist : String = musicCursor.getString(artistColumn)
                 var path : String = musicCursor.getString(data)
-                var duration : String = musicCursor.getString(duration)
+                var duration : String = setCorrectDuration(musicCursor.getString(duration)).toString()
                 var title : String = musicCursor.getString(titleColumn)
                 var img : String = ContentUris.withAppendedId(albumArtUri, musicCursor.getLong(albumId)).toString()
                 songList.add(SongModel(title, path, img, artist, duration))
             }while (musicCursor.moveToNext())
         }
+    }
+
+    private fun setCorrectDuration(songs_duration: String): String? {
+        var songs_duration = songs_duration
+        // TODO Auto-generated method stub
+
+        if (Integer.valueOf(songs_duration) != null) {
+            val time = Integer.valueOf(songs_duration)!!
+
+            var seconds = time / 1000
+            val minutes = seconds / 60
+            seconds %=  60
+
+            if (seconds < 10) {
+                songs_duration = minutes.toString() + ":0" + seconds.toString()
+            } else {
+
+                songs_duration = minutes.toString() + ":" + seconds.toString()
+            }
+            return songs_duration
+        }
+        return null
+
+
     }
 
     override fun onItemClick(position: Int) {
