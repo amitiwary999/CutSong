@@ -178,7 +178,6 @@ class SongCutActivity : AppCompatActivity(), View.OnClickListener {
             current_time = 0
             chronometer_song_play?.stop()
             iv_play_pause?.setImageResource(R.drawable.play_button)
-            iv_artwork?.clearAnimation()
         })
 
         bt_save = findViewById(R.id.bt_save) as Button
@@ -313,10 +312,6 @@ class SongCutActivity : AppCompatActivity(), View.OnClickListener {
 
     override fun onBackPressed() {
         super.onBackPressed()
-        if (mediaPlayer.isPlaying) {
-            mediaPlayer.stop()
-        }
-        mediaPlayer.release()
         var intent = Intent(this@SongCutActivity, MainActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
         startActivity(intent)
@@ -324,6 +319,22 @@ class SongCutActivity : AppCompatActivity(), View.OnClickListener {
        // animation?.cancel()
     }
 
+    override fun onPause() {
+        super.onPause()
+        Log.d("pause", "pause")
+        if (mediaPlayer.isPlaying) {
+            iv_play_pause?.setImageResource(R.drawable.play_button)
+            mediaPlayer.pause()
+            current_time = mediaPlayer.currentPosition.toLong()
+            chronometer_song_play?.stop()
+        }
+    }
+
+    override fun onStop() {
+        super.onStop()
+        Log.d("stop", "stop")
+        mediaPlayer.release()
+    }
 
     private fun saveRingtone(title: CharSequence, mStartPos: Double, mEndPos: Double) {
         val startTime = mStartPos.toFloat()

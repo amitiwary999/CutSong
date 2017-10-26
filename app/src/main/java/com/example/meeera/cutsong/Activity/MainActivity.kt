@@ -41,10 +41,6 @@ class MainActivity : AppCompatActivity() {
         ImageLoader.getInstance().init(configuration)
         viewpager = findViewById(R.id.viewpager) as ViewPager
         tabLayout = findViewById(R.id.tabLayout) as TabLayout
-    }
-
-    override fun onResume() {
-        super.onResume()
         setUpViewPager(viewpager)
         tabLayout.setupWithViewPager(viewpager)
         setUpTabIcons()
