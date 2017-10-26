@@ -312,10 +312,6 @@ class SongCutActivity : AppCompatActivity(), View.OnClickListener {
 
     override fun onBackPressed() {
         super.onBackPressed()
-        if (mediaPlayer.isPlaying) {
-            mediaPlayer.stop()
-        }
-        mediaPlayer.release()
         var intent = Intent(this@SongCutActivity, MainActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
         startActivity(intent)
@@ -326,10 +322,12 @@ class SongCutActivity : AppCompatActivity(), View.OnClickListener {
     override fun onPause() {
         super.onPause()
         Log.d("pause", "pause")
-        iv_play_pause?.setImageResource(R.drawable.play_button)
-        mediaPlayer.pause()
-        current_time = mediaPlayer.currentPosition.toLong()
-        chronometer_song_play?.stop()
+        if (mediaPlayer.isPlaying) {
+            iv_play_pause?.setImageResource(R.drawable.play_button)
+            mediaPlayer.pause()
+            current_time = mediaPlayer.currentPosition.toLong()
+            chronometer_song_play?.stop()
+        }
     }
 
     override fun onStop() {
