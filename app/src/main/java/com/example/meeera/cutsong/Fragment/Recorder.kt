@@ -15,7 +15,6 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import com.example.meeera.cutsong.Activity.SongCutActivity
 import com.example.meeera.cutsong.R
-import com.triggertrap.seekarc.SeekArc
 import java.io.File
 import java.io.IOException
 import java.util.*
@@ -98,7 +97,10 @@ class Recorder() : Fragment(), View.OnClickListener {
 
     override fun onClick(v: View) {
         when(v.id){
-            R.id.ll_discard -> ll_popup?.visibility = View.GONE
+            R.id.ll_discard -> {
+                chronometer?.setBase(SystemClock.elapsedRealtime())
+                ll_popup?.visibility = View.GONE
+            }
             R.id.ll_save -> {
                 ll_popup?.visibility = View.GONE
                 val intent = Intent(activity, SongCutActivity::class.java)
@@ -113,7 +115,6 @@ class Recorder() : Fragment(), View.OnClickListener {
                     stopRecording()
                     ll_popup?.visibility = View.VISIBLE
                 } else {
-
                     iv_record?.setImageResource(R.drawable.stop)
                     isRecording = !isRecording
                     startRecording()
