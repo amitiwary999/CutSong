@@ -11,6 +11,7 @@ import android.support.v4.app.FragmentStatePagerAdapter
 import com.crashlytics.android.Crashlytics;
 import io.fabric.sdk.android.Fabric;
 import android.support.v4.view.ViewPager
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.ImageView
@@ -24,7 +25,7 @@ import java.util.ArrayList
 
 
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), Recorder.recordingFlag {
 
     lateinit var viewpager : ViewPager
     lateinit var tabLayout : TabLayout
@@ -48,7 +49,7 @@ class MainActivity : AppCompatActivity() {
 
     fun setUpViewPager(viewPager: ViewPager) {
         viewpagerAdapter.addFrag(Music())
-        viewpagerAdapter.addFrag(Recorder())
+        viewpagerAdapter.addFrag(Recorder(this))
         viewPager.adapter = viewpagerAdapter
     }
 
@@ -62,6 +63,26 @@ class MainActivity : AppCompatActivity() {
             }
             tabLayout.getTabAt(1)!!.customView!!.isSelected = true
         }
+    }
+
+    override fun recording(flag: Boolean) {
+        viewpager.addOnPageChangeListener(object  : ViewPager.OnPageChangeListener{
+            override fun onPageScrollStateChanged(state: Int) {
+            }
+
+            override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {
+            }
+
+            override fun onPageSelected(position: Int) {
+                if(position == 0) {
+                    if(flag) {
+                        (viewpagerAdapter.getItem(1) as Recorder).stopRecording()
+                        Log.d("called", "called")
+                    }
+                }
+            }
+
+        })
     }
 
     class viewPagerAdapter(fm : FragmentManager) : FragmentStatePagerAdapter(fm) {
