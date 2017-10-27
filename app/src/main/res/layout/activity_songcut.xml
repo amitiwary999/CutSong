@@ -153,13 +153,6 @@
                         android:text="0:0" />
                 </RelativeLayout>
 
-                <Button
-                    android:visibility="gone"
-                    android:layout_gravity="center"
-                    android:id="@+id/bt_save"
-                    android:text="@string/btn_save"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
             </LinearLayout>
         </RelativeLayout>
     </LinearLayout>
