@@ -39,7 +39,7 @@ class SongCutActivity : AppCompatActivity(), View.OnClickListener {
     private var seekbar_song_play: SeekArc? = null
     private var iv_artwork: CircleImageView? = null
     private var chronometer_song_play: Chronometer? = null
-    private var mediaPlayer: MediaPlayer =  MediaPlayer()
+    private var mediaPlayer: MediaPlayer ?=  null
     private var tv_from: TextView? = null
     private var tv_to:TextView? = null
     private var fab_cut: FloatingActionButton? = null
@@ -67,6 +67,7 @@ class SongCutActivity : AppCompatActivity(), View.OnClickListener {
         setContentView(R.layout.activity_songcut)
         mLoadSoundFileThread = null
         mHandler = Handler()
+        mediaPlayer = MediaPlayer()
         fPath = intent.getStringExtra("fpath")
         artwork = intent.getStringExtra("artwork")
         imageLoader = ImageLoader.getInstance()
@@ -155,8 +156,8 @@ class SongCutActivity : AppCompatActivity(), View.OnClickListener {
 
             override fun onStopTrackingTouch(seekArc: SeekArc) {
                 setmediaProgress(seekArc.progress)
-                if (!mediaPlayer.isPlaying().toString().toBoolean()) {
-                    current_time = mediaPlayer.currentPosition.toLong()
+                if (!mediaPlayer?.isPlaying().toString().toBoolean()) {
+                    current_time = mediaPlayer?.currentPosition?.toLong().toString().toLong()
                 }
 
             }
@@ -167,7 +168,7 @@ class SongCutActivity : AppCompatActivity(), View.OnClickListener {
             seekbar_song_play?.setProgress(getProgress(elapsedMillis))
         }
 
-        mediaPlayer.setOnCompletionListener(MediaPlayer.OnCompletionListener {
+        mediaPlayer?.setOnCompletionListener(MediaPlayer.OnCompletionListener {
             current_time = 0
             chronometer_song_play?.stop()
             iv_play_pause?.setImageResource(R.drawable.play_button)
@@ -214,7 +215,8 @@ class SongCutActivity : AppCompatActivity(), View.OnClickListener {
                         mProgressDialog?.dismiss()
                         return
                     }
-
+                    mediaPlayer?.setDataSource(fPath)
+                    mediaPlayer?.prepare()
                 } catch (e: IOException) {
                     e.printStackTrace()
                     return
@@ -241,14 +243,14 @@ class SongCutActivity : AppCompatActivity(), View.OnClickListener {
      */
     internal fun handlePlayPause() {
 
-        if (mediaPlayer.isPlaying) {
+        if (mediaPlayer?.isPlaying.toString().toBoolean()) {
             iv_play_pause?.setImageResource(R.drawable.play_button)
-            mediaPlayer.pause()
-            current_time = mediaPlayer.currentPosition.toLong()
+            mediaPlayer?.pause()
+            current_time = mediaPlayer?.currentPosition?.toLong().toString().toLong()
             chronometer_song_play?.stop()
         } else {
             iv_play_pause?.setImageResource(R.drawable.pause_button)
-            mediaPlayer.start()
+            mediaPlayer?.start()
             val eclapsedtime = SystemClock.elapsedRealtime()
             chronometer_song_play?.setBase(eclapsedtime - current_time)
             chronometer_song_play?.start()
@@ -265,7 +267,7 @@ class SongCutActivity : AppCompatActivity(), View.OnClickListener {
 
     private fun setmediaProgress(p: Int) {
         val progress = (total_duration * p / 100).toInt()
-        mediaPlayer.seekTo(progress)
+        mediaPlayer?.seekTo(progress)
         val eclapsedtime = SystemClock.elapsedRealtime()
         chronometer_song_play?.setBase(eclapsedtime - progress)
         chronometer_song_play?.start()
@@ -295,8 +297,6 @@ class SongCutActivity : AppCompatActivity(), View.OnClickListener {
 
     override fun onStart() {
         super.onStart()
-        mediaPlayer.setDataSource(fPath)
-        mediaPlayer.prepare()
     }
 
     override fun onBackPressed() {
@@ -311,10 +311,10 @@ class SongCutActivity : AppCompatActivity(), View.OnClickListener {
     override fun onPause() {
         super.onPause()
         Log.d("pause", "pause")
-        if (mediaPlayer.isPlaying) {
+        if (mediaPlayer?.isPlaying.toString().toBoolean()) {
             iv_play_pause?.setImageResource(R.drawable.play_button)
-            mediaPlayer.pause()
-            current_time = mediaPlayer.currentPosition.toLong()
+            mediaPlayer?.pause()
+            current_time = mediaPlayer?.currentPosition?.toLong().toString().toLong()
             chronometer_song_play?.stop()
         }
     }
@@ -322,8 +322,6 @@ class SongCutActivity : AppCompatActivity(), View.OnClickListener {
     override fun onStop() {
         super.onStop()
         Log.d("stop", "stop")
-        current_time = mediaPlayer.currentPosition.toLong()
-        mediaPlayer.release()
     }
 
     override fun onDestroy() {
