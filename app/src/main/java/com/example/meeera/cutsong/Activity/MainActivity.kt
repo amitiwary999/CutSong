@@ -4,10 +4,7 @@ import android.content.Context
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.support.design.widget.TabLayout
-import android.support.v4.app.Fragment
-import android.support.v4.app.FragmentManager
-import android.support.v4.app.FragmentPagerAdapter
-import android.support.v4.app.FragmentStatePagerAdapter
+import android.support.v4.app.*
 import com.crashlytics.android.Crashlytics;
 import io.fabric.sdk.android.Fabric;
 import android.support.v4.view.ViewPager
@@ -47,14 +44,13 @@ class MainActivity : AppCompatActivity(), Recorder.recordingFlag {
         setUpTabIcons()
     }
 
-    fun setUpViewPager(viewPager: ViewPager) {
+    private fun setUpViewPager(viewPager: ViewPager) {
         viewpagerAdapter.addFrag(Music())
         viewpagerAdapter.addFrag(Recorder(this))
         viewPager.adapter = viewpagerAdapter
     }
 
-    fun setUpTabIcons() {
-        if (tabLayout != null) {
+    private fun setUpTabIcons() {
             tabLayout.setupWithViewPager(viewpager)
             var count = tabLayout.tabCount-1
             for (i in 0..count) {
@@ -62,7 +58,6 @@ class MainActivity : AppCompatActivity(), Recorder.recordingFlag {
                 tab?.setCustomView(viewpagerAdapter.getTabView(i))
             }
             tabLayout.getTabAt(1)!!.customView!!.isSelected = true
-        }
     }
 
     override fun recording(flag: Boolean) {
@@ -88,7 +83,6 @@ class MainActivity : AppCompatActivity(), Recorder.recordingFlag {
     class viewPagerAdapter(fm : FragmentManager) : FragmentStatePagerAdapter(fm) {
 
         private val mFragmentList = ArrayList<Fragment>()
-        private val mFragmentListtitle = ArrayList<String>()
         private val mTabsTitle = arrayOf("Music", "Recoder")
         private val mTabsIcons = intArrayOf(R.drawable.ic_music, R.drawable.ic_recorder)
 
