@@ -1,21 +1,24 @@
 package com.example.meeera.cutsong.Activity
 
 import android.content.Context
-import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
-import android.support.design.widget.TabLayout
 import android.support.v4.app.*
 import com.crashlytics.android.Crashlytics;
 import io.fabric.sdk.android.Fabric;
-import android.support.v4.view.ViewPager
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
+import androidx.fragment.app.FragmentStatePagerAdapter
+import androidx.viewpager.widget.ViewPager
 import com.example.meeera.cutsong.Fragment.Music
 import com.example.meeera.cutsong.Fragment.Recorder
 import com.example.meeera.cutsong.R
+import com.google.android.material.tabs.TabLayout
 import com.nostra13.universalimageloader.core.ImageLoader
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration
 import java.util.ArrayList

@@ -8,14 +8,14 @@ import android.media.MediaMetadataRetriever
 import android.media.MediaPlayer
 import android.os.*
 import android.provider.MediaStore
-import android.support.design.widget.FloatingActionButton
-import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.view.View
 import android.widget.*
+import androidx.appcompat.app.AppCompatActivity
 import com.bq.markerseekbar.MarkerSeekBar
 import com.example.meeera.cutsong.R
 import com.example.meeera.cutsong.soundfile.SoundFile
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.nostra13.universalimageloader.core.DisplayImageOptions
 import com.nostra13.universalimageloader.core.ImageLoader
 import com.triggertrap.seekarc.SeekArc

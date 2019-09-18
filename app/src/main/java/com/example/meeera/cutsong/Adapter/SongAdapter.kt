@@ -2,13 +2,13 @@ package com.example.meeera.cutsong.Adapter
 
 import android.content.Context
 import android.graphics.Bitmap
-import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.recyclerview.widget.RecyclerView
 import com.example.meeera.cutsong.Model.SongModel
 import com.example.meeera.cutsong.R
 import com.nostra13.universalimageloader.core.DisplayImageOptions
@@ -30,13 +30,13 @@ class SongAdapter(var data : ArrayList<SongModel>, var context : Context, var it
                                                   .bitmapConfig(Bitmap.Config.RGB_565)
                                                   .build()
 
-    override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): viewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): viewHolder {
         var view = LayoutInflater.from(parent?.context).inflate(R.layout.song_item, parent, false)
         var myViewholder = viewHolder(view)
         return myViewholder
     }
 
-    override fun onBindViewHolder(holder: viewHolder?, position: Int) {
+    override fun onBindViewHolder(holder: viewHolder, position: Int) {
         holder?.title?.text = data[position].song_name
         holder?.artict?.text = data[position].song_artist
         holder?.duration?.text = data[position].song_duration

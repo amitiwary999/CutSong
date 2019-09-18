@@ -1,26 +1,23 @@
 package com.example.meeera.cutsong.Fragment
 
 import android.Manifest
-import android.support.v4.app.Fragment
 import android.provider.MediaStore
 import android.Manifest.permission
 import android.Manifest.permission.READ_EXTERNAL_STORAGE
 import android.content.*
 import com.example.meeera.cutsong.Activity.MainActivity
-import android.support.v4.app.ActivityCompat
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.support.v4.content.ContextCompat
-import android.support.v7.app.AlertDialog
-import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.meeera.cutsong.Activity.SongCutActivity
 import com.example.meeera.cutsong.Adapter.SongAdapter
 import com.example.meeera.cutsong.Model.SongModel
@@ -36,19 +33,19 @@ class Music() : Fragment(), SongAdapter.itemClick {
     private val iAlbumArtUri = Uri.parse("content://media/internal/audio/albumart")
     var songList : ArrayList<SongModel> = ArrayList()
     var adapter : SongAdapter ?= null
-    var recyclerView : RecyclerView ?= null
+    var recyclerView : RecyclerView?= null
 
-    override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         var view = inflater?.inflate(R.layout.music_fragment, container, false)
         recyclerView = view?.findViewById(R.id.rv_song_list)
-        adapter = SongAdapter(songList, context, this)
+        adapter = SongAdapter(songList, context!!, this)
         recyclerView?.adapter = adapter
         recyclerView?.layoutManager = LinearLayoutManager(context)
         return view
     }
 
     private fun retrieveSong() {
-        val musicResolver = activity.contentResolver
+        val musicResolver = activity!!.contentResolver
         val musicUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
         val musicInternalUri = MediaStore.Audio.Media.INTERNAL_CONTENT_URI
         val musicCursor = musicResolver.query(musicUri, null, null, null, null)

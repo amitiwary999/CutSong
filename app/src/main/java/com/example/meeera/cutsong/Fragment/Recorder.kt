@@ -5,7 +5,6 @@ import android.media.MediaRecorder
 import android.os.Bundle
 import android.os.Environment
 import android.os.SystemClock
-import android.support.v4.app.Fragment
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -13,6 +12,7 @@ import android.view.ViewGroup
 import android.widget.Chronometer
 import android.widget.ImageView
 import android.widget.LinearLayout
+import androidx.fragment.app.Fragment
 import com.example.meeera.cutsong.Activity.SongCutActivity
 import com.example.meeera.cutsong.R
 import java.io.File
@@ -41,7 +41,8 @@ class Recorder() : Fragment(), View.OnClickListener {
     constructor(recording : recordingFlag) : this(){
         recordingflag = recording
     }
-    override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         var view = inflater?.inflate(R.layout.record_fragment, container, false)
         iv_record = view?.findViewById(R.id.iv_record)
         chronometer = view?.findViewById(R.id.chronometer)
