@@ -1,10 +1,35 @@
 #Install android build tools, platforms
 #Supported versions here https://circleci.com/docs/android
-dependencies:
-    override:
-        - ( sleep 5 && while [ 1 ]; do sleep 1; echo y; done ) | android update sdk --no-ui --all --filter "tools,platform-tools,android-26,extra-google-m2repository,extra-android-m2repository,extra-android-support"
-        - echo y | android update sdk --no-ui --all --filter "build-tools-26.0.2"
-        - ANDROID_HOME=/usr/local/android-sdk-linux ./gradlew dependencies
+version: 2
+jobs:
+    build:
+        working_directory: ~/code
+        docker:
+            - image: circleci/android:api-28-alpha
+        environment:
+            JVM_OPTS: -Xmx3200m
+        steps:
+            - checkout
+            - restore_cache:
+                  key: jars-{{ checksum "build.gradle" }}-{{ checksum  "app/build.gradle" }}
+            #      - run:
+            #         name: Chmod permissions #if permission for Gradlew Dependencies fail, use this.
+            #         command: sudo chmod +x ./gradlew
+            - run:
+                  name: Download Dependencies
+                  command: ./gradlew androidDependencies
+            - save_cache:
+                  paths:
+                      - ~/.gradle
+                  key: jars-{{ checksum "build.gradle" }}-{{ checksum  "app/build.gradle" }}
+            - run:
+                  name: Run Tests
+                  command: ./gradlew lint test
+            - store_artifacts:
+                  path: app/build/reports
+                  destination: reports
+            - store_test_results:
+                  path: app/build/test-results
 
 
 
