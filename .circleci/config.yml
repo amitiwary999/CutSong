@@ -33,7 +33,7 @@ jobs:
 
       - run:
           name: Download Dependencies
-          command: ./gradlew androidDependencies
+          command: ./gradlew dependencies
 
       - run: gradle dependencies
 
