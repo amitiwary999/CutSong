@@ -6,7 +6,10 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.media.MediaMetadataRetriever
 import android.media.MediaPlayer
-import android.os.*
+import android.os.Bundle
+import android.os.Environment
+import android.os.Handler
+import android.os.SystemClock
 import android.provider.MediaStore
 import android.util.Log
 import android.view.View
