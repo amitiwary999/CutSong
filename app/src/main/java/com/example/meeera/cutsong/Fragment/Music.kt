@@ -1,7 +1,9 @@
 package com.example.meeera.cutsong.Fragment
 
+import android.content.ContentUris
+import android.content.Context
+import android.content.Intent
 import android.provider.MediaStore
-import android.content.*
 import com.example.meeera.cutsong.Activity.MainActivity
 import android.net.Uri
 import android.os.Bundle

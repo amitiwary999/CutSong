@@ -17,7 +17,6 @@ import com.example.meeera.cutsong.Activity.SongCutActivity
 import com.example.meeera.cutsong.R
 import java.io.File
 import java.io.IOException
-import java.util.*
 import java.util.concurrent.TimeUnit
 
 /**
@@ -72,7 +71,7 @@ class Recorder() : Fragment(), View.OnClickListener {
         if (!storagePath.exists()) {
             storagePath.mkdir()
         }
-        mFileName = "aw_recording_" + Calendar.getInstance().timeInMillis.toString()
+        mFileName = "aw_recording_" + System.currentTimeMillis().toString()
         outfile = File(storagePath.toString() + "/" + mFileName + ".3gp")
         mRecorder?.setOutputFile(outfile?.getAbsolutePath())
         mRecorder?.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB)
