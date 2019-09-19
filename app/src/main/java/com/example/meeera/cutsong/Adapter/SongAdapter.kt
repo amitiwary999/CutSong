@@ -21,14 +21,14 @@ class SongAdapter(var data : ArrayList<SongModel>, var context : Context, var it
 
     var imageLoader : ImageLoader = ImageLoader.getInstance()
     var displayImageOption : DisplayImageOptions = DisplayImageOptions.Builder()
-                                                  .showImageOnLoading(R.drawable.place_holder)
-                                                  .showImageForEmptyUri(R.drawable.place_holder)
-                                                  .showImageOnFail(R.drawable.place_holder)
-                                                  .cacheInMemory(true)
-                                                  .cacheOnDisk(true)
-                                                  .considerExifParams(true)
-                                                  .bitmapConfig(Bitmap.Config.RGB_565)
-                                                  .build()
+            .showImageOnLoading(R.drawable.place_holder)
+            .showImageForEmptyUri(R.drawable.place_holder)
+            .showImageOnFail(R.drawable.place_holder)
+            .cacheInMemory(true)
+            .cacheOnDisk(true)
+            .considerExifParams(true)
+            .bitmapConfig(Bitmap.Config.RGB_565)
+            .build()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): viewHolder {
         var view = LayoutInflater.from(parent?.context).inflate(R.layout.song_item, parent, false)
