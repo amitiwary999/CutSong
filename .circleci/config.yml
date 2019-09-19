@@ -41,5 +41,5 @@ jobs:
           key: v1-dependencies-{{ checksum "build.gradle" }}
 
       - run:
-          name: Run Tests
-          command: ./gradlew build
+          name: spotless check
+          command: ./gradlew spotlessCheck
