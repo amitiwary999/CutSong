@@ -13,7 +13,11 @@ import android.os.SystemClock
 import android.provider.MediaStore
 import android.util.Log
 import android.view.View
-import android.widget.*
+import android.widget.Chronometer
+import android.widget.ImageView
+import android.widget.SeekBar
+import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.bq.markerseekbar.MarkerSeekBar
 import com.example.meeera.cutsong.R
