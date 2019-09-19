@@ -41,9 +41,5 @@ jobs:
           key: v1-dependencies-{{ checksum "build.gradle" }}
 
       - run:
-          name: lint check
-          command: ./gradlew lint
-
-      - run:
           name: Run Tests
           command: ./gradlew build
