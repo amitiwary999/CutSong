@@ -35,8 +35,6 @@ jobs:
           name: Download Dependencies
           command: ./gradlew dependencies
 
-      - run: gradle dependencies
-
       - save_cache:
           paths:
             - ~/.gradle
