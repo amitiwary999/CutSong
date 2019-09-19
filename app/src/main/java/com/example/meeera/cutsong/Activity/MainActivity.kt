@@ -2,7 +2,6 @@ package com.example.meeera.cutsong.Activity
 
 import android.content.Context
 import android.os.Bundle
-import android.support.v4.app.*
 import com.crashlytics.android.Crashlytics;
 import io.fabric.sdk.android.Fabric;
 import android.util.Log
