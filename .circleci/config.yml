@@ -39,3 +39,15 @@ jobs:
           paths:
             - ~/.gradle
           key: v1-dependencies-{{ checksum "build.gradle" }}
+
+      - run:
+          name: lint check
+          command: ./gradlew lint
+
+      - run:
+          name: spotless check
+          command: ./gradlew spotlessCheck
+
+      - run:
+          name: Run Tests
+          command: ./gradlew build
