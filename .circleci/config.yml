@@ -45,9 +45,5 @@ jobs:
           command: ./gradlew lint
 
       - run:
-          name: spotless check
-          command: ./gradlew spotlessCheck
-
-      - run:
           name: Run Tests
           command: ./gradlew build
