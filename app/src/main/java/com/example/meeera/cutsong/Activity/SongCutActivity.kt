@@ -55,7 +55,6 @@ class SongCutActivity : AppCompatActivity(), View.OnClickListener {
     private var fab_cut: FloatingActionButton? = null
     private var imageLoader: ImageLoader? = null
     private var options: DisplayImageOptions? = null
-   // private var animation: Animation? = null
     private var mMediaFile: SoundFile? = null
     var mProgressDialog: ProgressDialog ?= null
     var mLoadingKeepGoing : Boolean = true
@@ -104,7 +103,7 @@ class SongCutActivity : AppCompatActivity(), View.OnClickListener {
             }
 
             override fun onMeasureLongestText(seekBarMax: Int): String {
-                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+                return ""
             }
 
         })
@@ -129,7 +128,7 @@ class SongCutActivity : AppCompatActivity(), View.OnClickListener {
             }
 
             override fun onMeasureLongestText(seekBarMax: Int): String {
-                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+                return ""
             }
 
         })

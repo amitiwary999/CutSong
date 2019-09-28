@@ -1,7 +1,11 @@
 package com.example.meeera.cutsong.Activity
 
+import android.content.ContentUris
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
+import android.provider.MediaStore
 import com.crashlytics.android.Crashlytics;
 import io.fabric.sdk.android.Fabric;
 import android.util.Log
@@ -13,100 +17,107 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentStatePagerAdapter
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.viewpager.widget.ViewPager
+import com.example.meeera.cutsong.Adapter.SongAdapter
 import com.example.meeera.cutsong.Fragment.Music
 import com.example.meeera.cutsong.Fragment.Recorder
+import com.example.meeera.cutsong.Model.SongModel
 import com.example.meeera.cutsong.R
 import com.google.android.material.tabs.TabLayout
 import com.nostra13.universalimageloader.core.ImageLoader
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration
+import kotlinx.android.synthetic.main.activity_main.*
 import java.util.ArrayList
 
 
 
-class MainActivity : AppCompatActivity(), Recorder.recordingFlag {
+class MainActivity : AppCompatActivity(), SongAdapter.itemClick{
 
-    lateinit var viewpager : ViewPager
-    lateinit var tabLayout : TabLayout
-    companion object {
-        var context : Context ?= null
-    }
-    var viewpagerAdapter : viewPagerAdapter = viewPagerAdapter(supportFragmentManager)
+    private val albumArtUri = Uri.parse("content://media/external/audio/albumart")
+    private val iAlbumArtUri = Uri.parse("content://media/internal/audio/albumart")
+    var songList : ArrayList<SongModel> = ArrayList()
+    var adapter : SongAdapter?= null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         Fabric.with(this, Crashlytics())
-        context = baseContext
         val configuration = ImageLoaderConfiguration.Builder(this).build()
         ImageLoader.getInstance().init(configuration)
-        viewpager = findViewById(R.id.viewpager) as ViewPager
-        tabLayout = findViewById(R.id.tabLayout) as TabLayout
-        setUpViewPager(viewpager)
-        tabLayout.setupWithViewPager(viewpager)
-        setUpTabIcons()
+
+        adapter = SongAdapter(songList, this, this)
+        rv_song_list?.adapter = adapter
+        rv_song_list?.layoutManager = LinearLayoutManager(this)
+
+        retrieveSong()
     }
 
-    private fun setUpViewPager(viewPager: ViewPager) {
-        viewpagerAdapter.addFrag(Music())
-        viewpagerAdapter.addFrag(Recorder(this))
-        viewPager.adapter = viewpagerAdapter
+    private fun retrieveSong() {
+        val musicResolver = contentResolver
+        val musicUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
+        val musicInternalUri = MediaStore.Audio.Media.INTERNAL_CONTENT_URI
+        val musicCursor = musicResolver.query(musicUri, null, null, null, null)
+        val musicInternalCursor = musicResolver.query(musicInternalUri, null, null, null, null)
+        if(musicCursor != null && musicCursor.moveToFirst()){
+            val titleColumn = musicCursor.getColumnIndex(MediaStore.Audio.Media.TITLE)
+            val artistColumn = musicCursor.getColumnIndex(MediaStore.Audio.Media.ARTIST)
+            val data = musicCursor.getColumnIndex(MediaStore.Audio.Media.DATA)
+            val duration = musicCursor.getColumnIndex(MediaStore.Audio.Media.DURATION)
+            val albumId = musicCursor.getColumnIndex(MediaStore.Audio.Media.ALBUM_ID)
+            do {
+                var artist : String = musicCursor.getString(artistColumn)
+                var path : String = musicCursor.getString(data)
+                var duration : String = setCorrectDuration(musicCursor.getString(duration)).toString()
+                var title : String = musicCursor.getString(titleColumn)
+                var img : String = ContentUris.withAppendedId(albumArtUri, musicCursor.getLong(albumId)).toString()
+                songList.add(SongModel(title, path, img, artist, duration))
+            }while (musicCursor.moveToNext())
+            musicCursor.close()
+        }
+
+        if(musicInternalCursor != null && musicInternalCursor.moveToFirst()) {
+            val titleColumn = musicInternalCursor.getColumnIndex(MediaStore.Audio.Media.TITLE)
+            val artistColumn = musicInternalCursor.getColumnIndex(MediaStore.Audio.Media.ARTIST)
+            val data = musicInternalCursor.getColumnIndex(MediaStore.Audio.Media.DATA)
+            val duration = musicInternalCursor.getColumnIndex(MediaStore.Audio.Media.DURATION)
+            val albumId = musicInternalCursor.getColumnIndex(MediaStore.Audio.Media.ALBUM_ID)
+            do {
+                var artist : String = musicInternalCursor.getString(artistColumn)
+                var path : String = musicInternalCursor.getString(data)
+                var duration : String = setCorrectDuration(musicInternalCursor.getString(duration)).toString()
+                var title : String = musicInternalCursor.getString(titleColumn)
+                var img : String = ContentUris.withAppendedId(iAlbumArtUri, musicInternalCursor.getLong(albumId)).toString()
+                songList.add(SongModel(title, path, img, artist, duration))
+            }while (musicInternalCursor.moveToNext())
+            musicInternalCursor.close()
+        }
     }
 
-    private fun setUpTabIcons() {
-            tabLayout.setupWithViewPager(viewpager)
-            var count = tabLayout.tabCount-1
-            for (i in 0..count) {
-                val tab = tabLayout.getTabAt(i)
-                tab?.setCustomView(viewpagerAdapter.getTabView(i))
-            }
-            tabLayout.getTabAt(1)!!.customView!!.isSelected = true
+    private fun setCorrectDuration(duration: String): String? {
+        var songs_duration = duration
+
+        val time = songs_duration.toInt()
+
+        var seconds = time / 1000
+        val minutes = seconds / 60
+        seconds %=  60
+
+        if (seconds < 10) {
+            songs_duration = minutes.toString() + ":0" + seconds.toString()
+        } else {
+
+            songs_duration = minutes.toString() + ":" + seconds.toString()
+        }
+        return songs_duration
+
+
     }
 
-    override fun recording(flag: Boolean) {
-        viewpager.addOnPageChangeListener(object  : ViewPager.OnPageChangeListener{
-            override fun onPageScrollStateChanged(state: Int) {
-            }
-
-            override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {
-            }
-
-            override fun onPageSelected(position: Int) {
-                if(position == 0) {
-                    if(flag) {
-                        (viewpagerAdapter.getItem(1) as Recorder).stopRecording()
-                        Log.d("called", "called")
-                    }
-                }
-            }
-
-        })
-    }
-
-    class viewPagerAdapter(fm : FragmentManager) : FragmentStatePagerAdapter(fm) {
-
-        private val mFragmentList = ArrayList<Fragment>()
-        private val mTabsTitle = arrayOf("Music", "Recoder")
-        private val mTabsIcons = intArrayOf(R.drawable.ic_music, R.drawable.ic_recorder)
-
-        override fun getItem(position: Int): Fragment {
-            return mFragmentList[position]
-        }
-
-        override fun getCount(): Int {
-            return mFragmentList.size
-        }
-
-        fun getTabView(position: Int) : View {
-            var view  : View = LayoutInflater.from(context).inflate(R.layout.custom_tab_text, null)
-            val title = view.findViewById<TextView>(R.id.titletab)
-            title.text = mTabsTitle[position]
-            val icon = view.findViewById<ImageView>(R.id.icon)
-            icon.setImageResource(mTabsIcons[position])
-            return view
-        }
-
-        fun addFrag(fragment: Fragment) {
-            mFragmentList.add(fragment)
-        }
+    override fun onItemClick(position: Int) {
+        val intent = Intent(this, SongCutActivity::class.java)
+        intent.putExtra("fpath", songList[position].song_path)
+        intent.putExtra("artwork", songList[position].song_pic)
+        startActivity(intent)
     }
 }
