@@ -5,7 +5,6 @@ import android.media.MediaRecorder
 import android.os.Bundle
 import android.os.Environment
 import android.os.SystemClock
-import android.support.v4.app.Fragment
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -13,12 +12,11 @@ import android.view.ViewGroup
 import android.widget.Chronometer
 import android.widget.ImageView
 import android.widget.LinearLayout
+import androidx.fragment.app.Fragment
 import com.example.meeera.cutsong.Activity.SongCutActivity
 import com.example.meeera.cutsong.R
-import com.triggertrap.seekarc.SeekArc
 import java.io.File
 import java.io.IOException
-import java.util.*
 import java.util.concurrent.TimeUnit
 
 /**
@@ -27,18 +25,23 @@ import java.util.concurrent.TimeUnit
 class Recorder() : Fragment(), View.OnClickListener {
 
     private var iv_record: ImageView? = null
-    private var isRecording: Boolean = false
+    private var isRecording: Boolean ?= null
     private var mRecorder: MediaRecorder? = null
     private val LOG_TAG = "AudioRecordTest"
     private var mFileName: String? = null
     private var chronometer: Chronometer? = null
     private var outfile: File? = null
     private val maxtime = 2
+    var recordingflag : recordingFlag ?= null
     private var ll_popup: LinearLayout? = null
     private var ll_discard:LinearLayout? = null
     private var ll_save:LinearLayout? = null
 
-    override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    constructor(recording : recordingFlag) : this(){
+        recordingflag = recording
+    }
+
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         var view = inflater?.inflate(R.layout.record_fragment, container, false)
         iv_record = view?.findViewById(R.id.iv_record)
         chronometer = view?.findViewById(R.id.chronometer)
@@ -68,7 +71,7 @@ class Recorder() : Fragment(), View.OnClickListener {
         if (!storagePath.exists()) {
             storagePath.mkdir()
         }
-        mFileName = "aw_recording_" + Calendar.getInstance().timeInMillis.toString()
+        mFileName = "aw_recording_" + System.currentTimeMillis().toString()
         outfile = File(storagePath.toString() + "/" + mFileName + ".3gp")
         mRecorder?.setOutputFile(outfile?.getAbsolutePath())
         mRecorder?.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB)
@@ -85,20 +88,29 @@ class Recorder() : Fragment(), View.OnClickListener {
         chronometer?.start()
     }
 
-    private fun stopRecording() {
-        chronometer?.stop()
-        try {
-            mRecorder?.stop()
-            mRecorder?.release()
-            mRecorder = null
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
+    fun stopRecording() {
+        Log.d("isRecording", "value "+isRecording)
+            Log.d("stoprecording", "stop recording")
+            iv_record?.setImageResource(R.drawable.mic)
+            ll_popup?.visibility = View.VISIBLE
+            isRecording = !isRecording.toString().toBoolean()
+            recordingflag?.recording(isRecording.toString().toBoolean())
+            chronometer?.stop()
+            try {
+                mRecorder?.stop()
+                mRecorder?.release()
+                mRecorder = null
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
     }
 
     override fun onClick(v: View) {
         when(v.id){
-            R.id.ll_discard -> ll_popup?.visibility = View.GONE
+            R.id.ll_discard -> {
+                chronometer?.setBase(SystemClock.elapsedRealtime())
+                ll_popup?.visibility = View.GONE
+            }
             R.id.ll_save -> {
                 ll_popup?.visibility = View.GONE
                 val intent = Intent(activity, SongCutActivity::class.java)
@@ -107,19 +119,46 @@ class Recorder() : Fragment(), View.OnClickListener {
                 startActivity(intent)
             }
             R.id.iv_record -> {
-                if (isRecording) {
-                    iv_record?.setImageResource(R.drawable.mic)
-                    isRecording = !isRecording
-                    stopRecording()
-                    ll_popup?.visibility = View.VISIBLE
-                } else {
-
-                    iv_record?.setImageResource(R.drawable.stop)
-                    isRecording = !isRecording
-                    startRecording()
-                    ll_popup?.visibility = View.GONE
-                }
+                handlePlaynStop()
             }
         }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        handlePause()
+    }
+
+    fun handlePlaynStop() {
+        if (isRecording.toString().toBoolean()) {
+            stopRecording()
+        } else {
+            iv_record?.setImageResource(R.drawable.stop)
+            isRecording = !isRecording.toString().toBoolean()
+            recordingflag?.recording(isRecording.toString().toBoolean())
+            startRecording()
+            ll_popup?.visibility = View.GONE
+        }
+    }
+
+    fun handlePause() {
+        if(isRecording.toString().toBoolean()) {
+            isRecording = !isRecording.toString().toBoolean()
+            recordingflag?.recording(isRecording.toString().toBoolean())
+            iv_record?.setImageResource(R.drawable.mic)
+            chronometer?.stop()
+            try {
+                mRecorder?.stop()
+                mRecorder?.release()
+                mRecorder = null
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+            ll_popup?.visibility = View.VISIBLE
+        }
+    }
+
+    interface recordingFlag {
+        fun recording(flag : Boolean)
     }
 }
