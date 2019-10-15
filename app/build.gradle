@@ -50,6 +50,10 @@ dependencies {
     implementation 'junit:junit:4.12'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation 'com.airbnb.android:lottie:1.5.3'
+
+    //EXo player
+    implementation 'com.google.android.exoplayer:exoplayer:2.9.2'
+    implementation 'com.google.android.exoplayer:exoplayer-ui:2.9.6'
 }
 repositories {
     mavenCentral()
