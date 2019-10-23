@@ -14,6 +14,7 @@
         android:weightSum="7">
 
         <RelativeLayout
+            android:id="@+id/song_image_parent"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1.5">

@@ -1,7 +1,6 @@
 package com.example.meeera.cutsong.Activity
 
 import android.content.ContentUris
-import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -9,22 +8,12 @@ import android.provider.MediaStore
 import com.crashlytics.android.Crashlytics;
 import io.fabric.sdk.android.Fabric;
 import android.util.Log
-import android.view.LayoutInflater
-import android.view.View
-import android.widget.ImageView
-import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager
-import androidx.fragment.app.FragmentStatePagerAdapter
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.viewpager.widget.ViewPager
 import com.example.meeera.cutsong.Adapter.SongAdapter
-import com.example.meeera.cutsong.Fragment.Music
-import com.example.meeera.cutsong.Fragment.Recorder
+import com.example.meeera.cutsong.AudioPlayer
 import com.example.meeera.cutsong.Model.SongModel
 import com.example.meeera.cutsong.R
-import com.google.android.material.tabs.TabLayout
 import com.nostra13.universalimageloader.core.ImageLoader
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration
 import kotlinx.android.synthetic.main.activity_main.*
@@ -38,6 +27,7 @@ class MainActivity : AppCompatActivity(), SongAdapter.itemClick{
     private val iAlbumArtUri = Uri.parse("content://media/internal/audio/albumart")
     var songList : ArrayList<SongModel> = ArrayList()
     var adapter : SongAdapter?= null
+    var audioPlayer : AudioPlayer ?= null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,12 +35,13 @@ class MainActivity : AppCompatActivity(), SongAdapter.itemClick{
         Fabric.with(this, Crashlytics())
         val configuration = ImageLoaderConfiguration.Builder(this).build()
         ImageLoader.getInstance().init(configuration)
+        audioPlayer = AudioPlayer(this)
+
+        retrieveSong()
 
         adapter = SongAdapter(songList, this, this)
         rv_song_list?.adapter = adapter
         rv_song_list?.layoutManager = LinearLayoutManager(this)
-
-        retrieveSong()
     }
 
     private fun retrieveSong() {
@@ -119,5 +110,10 @@ class MainActivity : AppCompatActivity(), SongAdapter.itemClick{
         intent.putExtra("fpath", songList[position].song_path)
         intent.putExtra("artwork", songList[position].song_pic)
         startActivity(intent)
+    }
+
+    override fun playMusic(position: Int) {
+        Log.d("MainActivity ","uri "+Uri.parse(songList[position].song_path))
+        //audioPlayer?.openAudio(Uri.parse(songList[position].song_path))
     }
 }

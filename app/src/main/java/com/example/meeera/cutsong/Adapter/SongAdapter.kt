@@ -44,6 +44,10 @@ class SongAdapter(var data : ArrayList<SongModel>, var context : Context, var it
         holder?.ll?.setOnClickListener{
             itemclick.onItemClick(position)
         }
+
+        holder.img.setOnClickListener{
+            itemclick.playMusic(position)
+        }
     }
 
     override fun getItemCount(): Int {
@@ -60,5 +64,6 @@ class SongAdapter(var data : ArrayList<SongModel>, var context : Context, var it
 
     interface itemClick {
         fun onItemClick(position : Int)
+        fun playMusic(position: Int)
     }
 }

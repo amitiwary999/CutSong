@@ -2,6 +2,7 @@ package com.example.meeera.cutsong
 
 import android.net.Uri
 import android.os.Handler
+import android.util.Log
 import android.view.View
 import android.widget.ImageView
 import android.widget.SeekBar
@@ -18,6 +19,7 @@ import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.google.android.exoplayer2.upstream.TransferListener
 import com.google.android.exoplayer2.util.Util
+import kotlinx.android.synthetic.main.play_layout.*
 
 class AudioPlayer(var mainActivity: MainActivity): LifecycleObserver {
     lateinit var mExoPlayer: ExoPlayer
@@ -31,10 +33,6 @@ class AudioPlayer(var mainActivity: MainActivity): LifecycleObserver {
     var mCurrentAudioDuration: Long = 0
     var mCurrentAudioSeekbarInPercentage: Int = 0
 
-    private var vCurrentTime: TextView? = null
-    private var vTotalTime: TextView? = null
-    private var vAudioPlayButton: ImageView? = null
-    private var vAudioPauseButton: ImageView? = null
     var handler: Handler = Handler()
     private var mHomePlayerCallback: PlayerCallback? = null
 
@@ -72,6 +70,7 @@ class AudioPlayer(var mainActivity: MainActivity): LifecycleObserver {
 
     private fun stopMedia() {
         mExoPlayer.stop()
+        mainActivity.parent_layout_music.visibility = View.GONE
     }
 
 
@@ -87,8 +86,8 @@ class AudioPlayer(var mainActivity: MainActivity): LifecycleObserver {
         mExoPlayer.seekTo(playerPosition)
     }
 
-    private fun initSeekBar(view: View) {
-        vSeekBar = view.findViewById(R.id.media_audio_seek_bar)
+    private fun initSeekBar() {
+        vSeekBar = mainActivity.media_audio_seek_bar
         vSeekBar?.requestFocus()
 
         vSeekBar?.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
@@ -108,9 +107,13 @@ class AudioPlayer(var mainActivity: MainActivity): LifecycleObserver {
     }
 
     fun openAudio(uri: Uri) {
+        mainActivity.parent_layout_music.visibility = View.VISIBLE
+
         mCurrentUri = uri
         initExo()
         playAudio()
+
+        handleAudioMedia()
     }
 
     private fun initExo(){
@@ -126,8 +129,8 @@ class AudioPlayer(var mainActivity: MainActivity): LifecycleObserver {
                     //playNextPlayerAudio()
                     mExoPlayer.playWhenReady = false
 
-                    vAudioPlayButton?.visibility = View.VISIBLE
-                    vAudioPauseButton?.visibility = View.GONE
+                    mainActivity.media_audio_play_btn?.visibility = View.VISIBLE
+                    mainActivity.media_audio_pause_btn?.visibility = View.GONE
 
                 } else {
                     if (mHomePlayerCallback != null ) {                        //updateSeekBar()
@@ -185,24 +188,46 @@ class AudioPlayer(var mainActivity: MainActivity): LifecycleObserver {
 
     private fun pauseAudio()
     {
-        vAudioPlayButton?.visibility = View.VISIBLE
-        vAudioPauseButton?.visibility = View.GONE
+        mainActivity.media_audio_play_btn?.visibility = View.VISIBLE
+        mainActivity.media_audio_pause_btn?.visibility = View.GONE
 
     }
 
+    private fun handleAudioMedia(){
+        initSeekBar()
+        mHomePlayerCallback = mPlayerCallback
+        mExoPlayer.playWhenReady = true
+
+        mainActivity.media_audio_current_time.visibility = View.VISIBLE
+        mainActivity.media_audio_play_btn.visibility = View.GONE
+        mainActivity.media_audio_pause_btn.visibility = View.VISIBLE
+
+        mainActivity.media_audio_play_btn?.setOnClickListener {
+            Log.d("play ", "audio")
+            mainActivity.media_audio_play_btn?.visibility = View.GONE
+            mainActivity.media_audio_pause_btn?.visibility = View.VISIBLE
+            mExoPlayer.playWhenReady = true
+        }
+
+        mainActivity.media_audio_pause_btn?.setOnClickListener {
+            mainActivity.media_audio_play_btn?.visibility = View.VISIBLE
+            mainActivity.media_audio_pause_btn?.visibility = View.GONE
+            mExoPlayer.playWhenReady = false
+        }
+    }
 
     private var mPlayerCallback: PlayerCallback = object : PlayerCallback {
         override fun onPlayerReady(exoPlayer: ExoPlayer) {
-            vCurrentTime?.let { it.text = UtilTime.timeFormatted(mCurrentAudioPosition) }
+            mainActivity.media_audio_current_time?.let { it.text = UtilTime.timeFormatted(mCurrentAudioPosition) }
             vSeekBar?.let {
                 it.progress = mCurrentAudioSeekbarInPercentage
                 it.max = 100
             }
-            vTotalTime?.text = UtilTime.timeFormatted(exoPlayer.duration)
+            mainActivity.media_audio_total_time?.text = UtilTime.timeFormatted(exoPlayer.duration)
         }
 
         override fun onPlayerSeekBarProgressUpdate(pAudioCurrentPosition: Long, pAudioPositionInPercentage: Int, pAudioDuration: Long) {
-            vCurrentTime?.let { it.text = UtilTime.timeFormatted(mCurrentAudioPosition) }
+            mainActivity.media_audio_current_time?.let { it.text = UtilTime.timeFormatted(mCurrentAudioPosition) }
             vSeekBar?.let { it.progress = mCurrentAudioSeekbarInPercentage }
         }
 
