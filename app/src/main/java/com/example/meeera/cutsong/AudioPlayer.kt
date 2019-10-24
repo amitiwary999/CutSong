@@ -62,6 +62,8 @@ class AudioPlayer(var mainActivity: MainActivity): LifecycleObserver {
     fun onPause() {
         shouldPlay=mExoPlayer.playWhenReady
         mExoPlayer.playWhenReady=false
+
+        pauseAudio()
     }
     @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
     fun onDestroy() {

@@ -27,7 +27,7 @@ class MainActivity : AppCompatActivity(), SongAdapter.itemClick{
     private val iAlbumArtUri = Uri.parse("content://media/internal/audio/albumart")
     var songList : ArrayList<SongModel> = ArrayList()
     var adapter : SongAdapter?= null
-    var audioPlayer : AudioPlayer ?= null
+    lateinit var audioPlayer : AudioPlayer
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -36,7 +36,7 @@ class MainActivity : AppCompatActivity(), SongAdapter.itemClick{
         val configuration = ImageLoaderConfiguration.Builder(this).build()
         ImageLoader.getInstance().init(configuration)
         audioPlayer = AudioPlayer(this)
-
+        lifecycle.addObserver(audioPlayer)
         retrieveSong()
 
         adapter = SongAdapter(songList, this, this)
@@ -65,23 +65,6 @@ class MainActivity : AppCompatActivity(), SongAdapter.itemClick{
                 songList.add(SongModel(title, path, img, artist, duration))
             }while (musicCursor.moveToNext())
             musicCursor.close()
-        }
-
-        if(musicInternalCursor != null && musicInternalCursor.moveToFirst()) {
-            val titleColumn = musicInternalCursor.getColumnIndex(MediaStore.Audio.Media.TITLE)
-            val artistColumn = musicInternalCursor.getColumnIndex(MediaStore.Audio.Media.ARTIST)
-            val data = musicInternalCursor.getColumnIndex(MediaStore.Audio.Media.DATA)
-            val duration = musicInternalCursor.getColumnIndex(MediaStore.Audio.Media.DURATION)
-            val albumId = musicInternalCursor.getColumnIndex(MediaStore.Audio.Media.ALBUM_ID)
-            do {
-                var artist : String = musicInternalCursor.getString(artistColumn)
-                var path : String = musicInternalCursor.getString(data)
-                var duration : String = setCorrectDuration(musicInternalCursor.getString(duration)).toString()
-                var title : String = musicInternalCursor.getString(titleColumn)
-                var img : String = ContentUris.withAppendedId(iAlbumArtUri, musicInternalCursor.getLong(albumId)).toString()
-                songList.add(SongModel(title, path, img, artist, duration))
-            }while (musicInternalCursor.moveToNext())
-            musicInternalCursor.close()
         }
     }
 
@@ -114,6 +97,6 @@ class MainActivity : AppCompatActivity(), SongAdapter.itemClick{
 
     override fun playMusic(position: Int) {
         Log.d("MainActivity ","uri "+Uri.parse(songList[position].song_path))
-        //audioPlayer?.openAudio(Uri.parse(songList[position].song_path))
+        audioPlayer?.openAudio(Uri.parse(songList[position].song_path))
     }
 }
