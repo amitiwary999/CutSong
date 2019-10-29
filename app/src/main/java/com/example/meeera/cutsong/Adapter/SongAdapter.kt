@@ -2,6 +2,7 @@ package com.example.meeera.cutsong.Adapter
 
 import android.content.Context
 import android.graphics.Bitmap
+import android.net.Uri
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -9,15 +10,19 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
+import com.bumptech.glide.request.RequestOptions
 import com.example.meeera.cutsong.Model.SongModel
 import com.example.meeera.cutsong.R
+import com.example.meeera.cutsong.Utils.UtilDpToPixel
 import com.nostra13.universalimageloader.core.DisplayImageOptions
 import com.nostra13.universalimageloader.core.ImageLoader
+import kotlin.math.roundToInt
 
 /**
  * Created by meeera on 24/10/17.
  */
-class SongAdapter(var data : ArrayList<SongModel>, var context : Context, var itemclick : itemClick) : RecyclerView.Adapter<SongAdapter.viewHolder>() {
+class SongAdapter(var data : ArrayList<SongModel>, var context : Context, var itemclick : itemClick, var screenWidth: Float, var gridCount: Int) : RecyclerView.Adapter<SongAdapter.viewHolder>() {
 
     var imageLoader : ImageLoader = ImageLoader.getInstance()
     var displayImageOption : DisplayImageOptions = DisplayImageOptions.Builder()
@@ -31,16 +36,17 @@ class SongAdapter(var data : ArrayList<SongModel>, var context : Context, var it
             .build()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): viewHolder {
-        var view = LayoutInflater.from(parent?.context).inflate(R.layout.song_item, parent, false)
+        var view = LayoutInflater.from(parent?.context).inflate(R.layout.song_item_layout, parent, false)
         var myViewholder = viewHolder(view)
         return myViewholder
     }
 
     override fun onBindViewHolder(holder: viewHolder, position: Int) {
+
         holder?.title?.text = data[position].song_name
         holder?.artict?.text = data[position].song_artist
-        holder?.duration?.text = data[position].song_duration
-        imageLoader.displayImage(data[position].song_pic, holder?.img, displayImageOption)
+        //holder?.duration?.text = data[position].song_duration
+     //   imageLoader.displayImage(data[position].song_pic, holder?.img, displayImageOption)
         holder?.ll?.setOnClickListener{
             itemclick.onItemClick(position)
         }
@@ -48,6 +54,8 @@ class SongAdapter(var data : ArrayList<SongModel>, var context : Context, var it
         holder.img.setOnClickListener{
             itemclick.playMusic(position)
         }
+
+        holder.bindData(data[position].song_pic, screenWidth, context, gridCount)
     }
 
     override fun getItemCount(): Int {
@@ -56,10 +64,18 @@ class SongAdapter(var data : ArrayList<SongModel>, var context : Context, var it
 
     class viewHolder(itemView : View) : RecyclerView.ViewHolder(itemView) {
         var ll = itemView.findViewById<LinearLayout>(R.id.linearl)
-        var img = itemView.findViewById<ImageView>(R.id.iv_song_thumb)
-        var title = itemView.findViewById<TextView>(R.id.tv_song_title)
-        var artict = itemView.findViewById<TextView>(R.id.tv_song_artist)
-        var duration = itemView.findViewById<TextView>(R.id.tv_duration)
+        var img = itemView.findViewById<ImageView>(R.id.song_image)
+        var title = itemView.findViewById<TextView>(R.id.song_name)
+        var artict = itemView.findViewById<TextView>(R.id.song_artist)
+
+        fun bindData(uri: String, screenWidth: Float, context: Context, count: Int){
+            val imageDimension: Int = UtilDpToPixel.convertDpToPixel(screenWidth/count, context).roundToInt()
+            Glide.with(itemView).applyDefaultRequestOptions(RequestOptions()
+                    .placeholder(R.drawable.place_holder)
+                    .error(R.drawable.place_holder).centerCrop().override(imageDimension, imageDimension))
+                    .load(Uri.parse(uri))
+                    .into(img)
+        }
     }
 
     interface itemClick {

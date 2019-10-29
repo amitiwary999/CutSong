@@ -6,6 +6,7 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'io.fabric'
+apply plugin: 'kotlin-kapt'
 
 android {
     compileSdkVersion 28
@@ -55,6 +56,10 @@ dependencies {
     implementation 'junit:junit:4.12'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation 'com.airbnb.android:lottie:1.5.3'
+
+    /*glide */
+    implementation 'com.github.bumptech.glide:glide:4.10.0'
+    kapt 'com.github.bumptech.glide:compiler:4.10.0'
 
     //EXo player
     implementation 'com.google.android.exoplayer:exoplayer:2.9.2'

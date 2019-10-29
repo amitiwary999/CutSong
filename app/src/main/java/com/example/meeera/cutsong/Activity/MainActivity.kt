@@ -9,6 +9,7 @@ import com.crashlytics.android.Crashlytics;
 import io.fabric.sdk.android.Fabric;
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.meeera.cutsong.Adapter.SongAdapter
 import com.example.meeera.cutsong.AudioPlayer
@@ -28,6 +29,8 @@ class MainActivity : AppCompatActivity(), SongAdapter.itemClick{
     var songList : ArrayList<SongModel> = ArrayList()
     var adapter : SongAdapter?= null
     lateinit var audioPlayer : AudioPlayer
+    var width: Float = 0F
+    val spanCount = 2
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,9 +42,10 @@ class MainActivity : AppCompatActivity(), SongAdapter.itemClick{
         lifecycle.addObserver(audioPlayer)
         retrieveSong()
 
-        adapter = SongAdapter(songList, this, this)
+        width = resources.displayMetrics.widthPixels / resources.displayMetrics.density
+        adapter = SongAdapter(songList, this, this, width, spanCount)
         rv_song_list?.adapter = adapter
-        rv_song_list?.layoutManager = LinearLayoutManager(this)
+        rv_song_list?.layoutManager = GridLayoutManager(this, spanCount)
     }
 
     private fun retrieveSong() {
