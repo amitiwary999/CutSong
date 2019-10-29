@@ -3,6 +3,7 @@ package com.example.meeera.cutsong.Adapter
 import android.content.Context
 import android.graphics.Bitmap
 import android.net.Uri
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -70,9 +71,9 @@ class SongAdapter(var data : ArrayList<SongModel>, var context : Context, var it
 
         fun bindData(uri: String, screenWidth: Float, context: Context, count: Int){
             val imageDimension: Int = UtilDpToPixel.convertDpToPixel(screenWidth/count, context).roundToInt()
+            Log.d("image height ","val $imageDimension $screenWidth")
             Glide.with(itemView).applyDefaultRequestOptions(RequestOptions()
-                    .placeholder(R.drawable.place_holder)
-                    .error(R.drawable.place_holder).centerCrop().override(imageDimension, imageDimension))
+                    .error(R.drawable.pic_gallery).centerCrop().override(imageDimension, imageDimension))
                     .load(Uri.parse(uri))
                     .into(img)
         }
