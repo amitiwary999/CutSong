@@ -18,6 +18,7 @@ import com.example.meeera.cutsong.R
 import com.example.meeera.cutsong.Utils.UtilDpToPixel
 import com.nostra13.universalimageloader.core.DisplayImageOptions
 import com.nostra13.universalimageloader.core.ImageLoader
+import kotlinx.android.synthetic.main.song_item_layout.view.*
 import kotlin.math.roundToInt
 
 /**
@@ -71,9 +72,15 @@ class SongAdapter(var data : ArrayList<SongModel>, var context : Context, var it
 
         fun bindData(uri: String, screenWidth: Float, context: Context, count: Int){
             val imageDimension: Int = UtilDpToPixel.convertDpToPixel(screenWidth/count, context).roundToInt()
+            val imagePaddingHorizontal: Int = UtilDpToPixel.convertDpToPixel(2F, itemView.context).roundToInt()
+            val imagePaddingVertical: Int = UtilDpToPixel.convertDpToPixel(2F, itemView.context).roundToInt()
+            val mLinearLayoutParam: LinearLayout.LayoutParams = LinearLayout.LayoutParams(imageDimension-imagePaddingHorizontal, imageDimension-imagePaddingVertical)
+            itemView.song_item_card.layoutParams= mLinearLayoutParam
+
             Log.d("image height ","val $imageDimension $screenWidth")
             Glide.with(itemView).applyDefaultRequestOptions(RequestOptions()
-                    .error(R.drawable.pic_gallery).centerCrop().override(imageDimension, imageDimension))
+                    .placeholder(R.drawable.pic_gallery)
+                    .error(R.drawable.pic_gallery).centerCrop().override(imageDimension-imagePaddingHorizontal, imageDimension-imagePaddingVertical))
                     .load(Uri.parse(uri))
                     .into(img)
         }
