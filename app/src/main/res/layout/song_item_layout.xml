@@ -12,10 +12,22 @@
     android:layout_height="wrap_content"
     app:cardCornerRadius="2dp"
     android:layout_margin="2dp">
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
     <ImageView
         android:id="@+id/song_image"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
+        <ImageView
+            android:id="@+id/play_btn"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:src="@drawable/play_button"
+            android:layout_marginRight="4dp"
+            android:layout_marginBottom="4dp"
+            android:layout_gravity="bottom|right"/>
+    </FrameLayout>
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -28,7 +40,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textColor="#FFFFFF"
-        android:maxLines="1"/>
+        android:textStyle="bold"
+        android:maxLines="2"/>
         <TextView
             android:id="@+id/song_artist"
             android:layout_width="match_parent"

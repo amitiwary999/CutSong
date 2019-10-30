@@ -53,7 +53,7 @@ class SongAdapter(var data : ArrayList<SongModel>, var context : Context, var it
             itemclick.onItemClick(position)
         }
 
-        holder.img.setOnClickListener{
+        holder.itemView.play_btn.setOnClickListener{
             itemclick.playMusic(position)
         }
 
@@ -79,8 +79,8 @@ class SongAdapter(var data : ArrayList<SongModel>, var context : Context, var it
 
             Log.d("image height ","val $imageDimension $screenWidth")
             Glide.with(itemView).applyDefaultRequestOptions(RequestOptions()
-                    .placeholder(R.drawable.pic_gallery)
-                    .error(R.drawable.pic_gallery).centerCrop().override(imageDimension-imagePaddingHorizontal, imageDimension-imagePaddingVertical))
+                    .placeholder(R.drawable.place_holder)
+                    .error(R.drawable.place_holder).centerCrop().override(imageDimension-imagePaddingHorizontal, imageDimension-imagePaddingVertical))
                     .load(Uri.parse(uri))
                     .into(img)
         }
