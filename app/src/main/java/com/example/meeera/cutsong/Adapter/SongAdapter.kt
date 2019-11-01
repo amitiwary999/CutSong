@@ -26,30 +26,17 @@ import kotlin.math.roundToInt
  */
 class SongAdapter(var data : ArrayList<SongModel>, var context : Context, var itemclick : itemClick, var screenWidth: Float, var gridCount: Int) : RecyclerView.Adapter<SongAdapter.viewHolder>() {
 
-    var imageLoader : ImageLoader = ImageLoader.getInstance()
-    var displayImageOption : DisplayImageOptions = DisplayImageOptions.Builder()
-            .showImageOnLoading(R.drawable.place_holder)
-            .showImageForEmptyUri(R.drawable.place_holder)
-            .showImageOnFail(R.drawable.place_holder)
-            .cacheInMemory(true)
-            .cacheOnDisk(true)
-            .considerExifParams(true)
-            .bitmapConfig(Bitmap.Config.RGB_565)
-            .build()
-
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): viewHolder {
-        var view = LayoutInflater.from(parent?.context).inflate(R.layout.song_item_layout, parent, false)
+        var view = LayoutInflater.from(parent.context).inflate(R.layout.song_item_layout, parent, false)
         var myViewholder = viewHolder(view)
         return myViewholder
     }
 
     override fun onBindViewHolder(holder: viewHolder, position: Int) {
 
-        holder?.title?.text = data[position].song_name
-        holder?.artict?.text = data[position].song_artist
-        //holder?.duration?.text = data[position].song_duration
-     //   imageLoader.displayImage(data[position].song_pic, holder?.img, displayImageOption)
-        holder?.ll?.setOnClickListener{
+        holder.itemView.song_name?.text = data[position].song_name
+        holder.itemView.song_artist?.text = data[position].song_artist
+        holder.itemView.linearl?.setOnClickListener{
             itemclick.onItemClick(position)
         }
 
@@ -65,11 +52,6 @@ class SongAdapter(var data : ArrayList<SongModel>, var context : Context, var it
     }
 
     class viewHolder(itemView : View) : RecyclerView.ViewHolder(itemView) {
-        var ll = itemView.findViewById<LinearLayout>(R.id.linearl)
-        var img = itemView.findViewById<ImageView>(R.id.song_image)
-        var title = itemView.findViewById<TextView>(R.id.song_name)
-        var artict = itemView.findViewById<TextView>(R.id.song_artist)
-
         fun bindData(uri: String, screenWidth: Float, context: Context, count: Int){
             val imageDimension: Int = UtilDpToPixel.convertDpToPixel(screenWidth/count, context).roundToInt()
             val imagePaddingHorizontal: Int = UtilDpToPixel.convertDpToPixel(2F, itemView.context).roundToInt()
@@ -82,7 +64,7 @@ class SongAdapter(var data : ArrayList<SongModel>, var context : Context, var it
                     .placeholder(R.drawable.place_holder)
                     .error(R.drawable.place_holder).centerCrop().override(imageDimension-imagePaddingHorizontal, imageDimension-imagePaddingVertical))
                     .load(Uri.parse(uri))
-                    .into(img)
+                    .into(itemView.song_image)
         }
     }
 
