@@ -1,7 +1,6 @@
 package com.example.meeera.cutsong.Activity
 
 import android.content.ContentUris
-import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -9,22 +8,13 @@ import android.provider.MediaStore
 import com.crashlytics.android.Crashlytics;
 import io.fabric.sdk.android.Fabric;
 import android.util.Log
-import android.view.LayoutInflater
-import android.view.View
-import android.widget.ImageView
-import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager
-import androidx.fragment.app.FragmentStatePagerAdapter
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.viewpager.widget.ViewPager
 import com.example.meeera.cutsong.Adapter.SongAdapter
-import com.example.meeera.cutsong.Fragment.Music
-import com.example.meeera.cutsong.Fragment.Recorder
+import com.example.meeera.cutsong.AudioPlayer
 import com.example.meeera.cutsong.Model.SongModel
 import com.example.meeera.cutsong.R
-import com.google.android.material.tabs.TabLayout
 import com.nostra13.universalimageloader.core.ImageLoader
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration
 import kotlinx.android.synthetic.main.activity_main.*
@@ -38,6 +28,9 @@ class MainActivity : AppCompatActivity(), SongAdapter.itemClick{
     private val iAlbumArtUri = Uri.parse("content://media/internal/audio/albumart")
     var songList : ArrayList<SongModel> = ArrayList()
     var adapter : SongAdapter?= null
+    lateinit var audioPlayer : AudioPlayer
+    var width: Float = 0F
+    val spanCount = 2
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,12 +38,14 @@ class MainActivity : AppCompatActivity(), SongAdapter.itemClick{
         Fabric.with(this, Crashlytics())
         val configuration = ImageLoaderConfiguration.Builder(this).build()
         ImageLoader.getInstance().init(configuration)
-
-        adapter = SongAdapter(songList, this, this)
-        rv_song_list?.adapter = adapter
-        rv_song_list?.layoutManager = LinearLayoutManager(this)
-
+        audioPlayer = AudioPlayer(this)
+        lifecycle.addObserver(audioPlayer)
         retrieveSong()
+
+        width = resources.displayMetrics.widthPixels / resources.displayMetrics.density
+        adapter = SongAdapter(songList, this, this, width, spanCount)
+        rv_song_list?.adapter = adapter
+        rv_song_list?.layoutManager = GridLayoutManager(this, spanCount)
     }
 
     private fun retrieveSong() {
@@ -74,23 +69,6 @@ class MainActivity : AppCompatActivity(), SongAdapter.itemClick{
                 songList.add(SongModel(title, path, img, artist, duration))
             }while (musicCursor.moveToNext())
             musicCursor.close()
-        }
-
-        if(musicInternalCursor != null && musicInternalCursor.moveToFirst()) {
-            val titleColumn = musicInternalCursor.getColumnIndex(MediaStore.Audio.Media.TITLE)
-            val artistColumn = musicInternalCursor.getColumnIndex(MediaStore.Audio.Media.ARTIST)
-            val data = musicInternalCursor.getColumnIndex(MediaStore.Audio.Media.DATA)
-            val duration = musicInternalCursor.getColumnIndex(MediaStore.Audio.Media.DURATION)
-            val albumId = musicInternalCursor.getColumnIndex(MediaStore.Audio.Media.ALBUM_ID)
-            do {
-                var artist : String = musicInternalCursor.getString(artistColumn)
-                var path : String = musicInternalCursor.getString(data)
-                var duration : String = setCorrectDuration(musicInternalCursor.getString(duration)).toString()
-                var title : String = musicInternalCursor.getString(titleColumn)
-                var img : String = ContentUris.withAppendedId(iAlbumArtUri, musicInternalCursor.getLong(albumId)).toString()
-                songList.add(SongModel(title, path, img, artist, duration))
-            }while (musicInternalCursor.moveToNext())
-            musicInternalCursor.close()
         }
     }
 
@@ -119,5 +97,10 @@ class MainActivity : AppCompatActivity(), SongAdapter.itemClick{
         intent.putExtra("fpath", songList[position].song_path)
         intent.putExtra("artwork", songList[position].song_pic)
         startActivity(intent)
+    }
+
+    override fun playMusic(position: Int) {
+        Log.d("MainActivity ","uri "+Uri.parse(songList[position].song_path))
+        audioPlayer?.openAudio(Uri.parse(songList[position].song_path))
     }
 }
